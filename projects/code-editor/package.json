@@ -1,9 +1,12 @@
 {
-  "name": "code-editor",
+  "name": "@acrodata/code-editor",
   "version": "0.0.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
-    "@angular/common": "^17.3.0",
-    "@angular/core": "^17.3.0"
+    "@angular/common": ">=16.0.0",
+    "@angular/core": ">=16.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

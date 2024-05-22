@@ -24,14 +24,11 @@
       "dom"
     ],
     "paths": {
-      "@acrodata/gui": [
-        "projects/gui"
+      "@acrodata/code-editor": [
+        "projects/code-editor"
       ],
-      "@acrodata/gui/*": [
-        "projects/gui/*"
-      ],
-      "code-editor": [
-        "./dist/code-editor"
+      "@acrodata/code-editor/*": [
+        "projects/code-editor/*"
       ],
     }
   },
