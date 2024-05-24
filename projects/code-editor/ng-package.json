@@ -3,5 +3,9 @@
   "dest": "../../dist/code-editor",
   "lib": {
     "entryFile": "public-api.ts"
-  }
+  },
+  "allowedNonPeerDependencies": [
+    "@codemirror/theme-one-dark",
+    "codemirror"
+  ]
 }
