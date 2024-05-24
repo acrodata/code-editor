@@ -4,11 +4,27 @@
   "publishConfig": {
     "access": "public"
   },
+  "author": "nzbin<nzb329@163.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acrodata/code-editor.git"
+  },
+  "homepage": "https://acrodata.github.io/code-editor/",
+  "keywords": [
+    "angular",
+    "codemirror",
+    "codemirror6",
+    "code-editor",
+    "ngx-codemirror"
+  ],
   "peerDependencies": {
-    "@angular/common": ">=16.0.0",
-    "@angular/core": ">=16.0.0"
+    "@angular/core": ">=16.0.0",
+    "@angular/forms": ">=16.0.0"
   },
   "dependencies": {
+    "@codemirror/theme-one-dark": "^6.0.0",
+    "codemirror": "^6.0.0",
     "tslib": "^2.3.0"
   },
   "sideEffects": false
