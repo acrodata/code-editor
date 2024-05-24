@@ -11,12 +11,12 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  code = 'console.log("Hello world")';
-
   theme: Theme = 'light';
   disabled = false;
   readonly = false;
   placeholder = 'Type your code here...';
+
+  code = 'console.log("Hello world")';
 
   editorControl = new FormControl({ value: 'hello', disabled: true });
 

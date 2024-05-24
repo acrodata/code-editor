@@ -9,6 +9,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
+  ViewEncapsulation,
   forwardRef,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -25,8 +26,8 @@ export type Theme = 'light' | 'dark' | Extension;
 @Component({
   selector: 'code-editor',
   standalone: true,
-  imports: [],
   template: ``,
+  encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
@@ -37,6 +38,11 @@ export type Theme = 'light' | 'dark' | Extension;
   ],
 })
 export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAccessor {
+  /**
+   * The document or shadow root that the view lives in.
+   *
+   * https://codemirror.net/docs/ref/#view.EditorView.root
+   */
   @Input() root?: Document | ShadowRoot;
 
   /** Editor's value. */
@@ -67,6 +73,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
 
   /**
    * EditorState's [extensions](https://codemirror.net/docs/ref/#state.EditorStateConfig.extensions).
+   * It includes the [basicSetup](https://codemirror.net/docs/ref/#codemirror.basicSetup) by default.
    */
   @Input() extensions: Extension[] = [basicSetup];
 
@@ -89,8 +96,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   /** Register a function to be called every time the view updates. */
   private _updateListener = EditorView.updateListener.of(vu => {
     if (vu.docChanged && !vu.transactions.some(tr => tr.annotation(External))) {
-      const doc = vu.state.doc;
-      const value = doc.toString();
+      const value = vu.state.doc.toString();
       this._onChange(value);
       this.change.emit(value);
     }
@@ -140,7 +146,10 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     this.view = new EditorView({
       root: this.root,
       parent: this._elementRef.nativeElement,
-      state: EditorState.create({ doc: this.value, extensions: this.getExtensions() }),
+      state: EditorState.create({
+        doc: this.value,
+        extensions: this.getExtensions(),
+      }),
     });
 
     if (this.autoFocus) {

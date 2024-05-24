@@ -20,7 +20,7 @@
 <code-editor #editor
              [(ngModel)]="code"
              [ngModelOptions]="{updateOn:'blur'}"
-             (ngModelChange)="log(editor)"
+             (ngModelChange)="log($event)"
              [theme]="theme"
              [disabled]="disabled"
              [readonly]="readonly"
@@ -36,3 +36,5 @@
 </label>
 
 <code-editor [formControl]="editorControl" />
+
+<pre>{{editorControl.value}}</pre>
