@@ -17,6 +17,14 @@
   <input type="text" [(ngModel)]="placeholder" />
 </label>
 
+<label>
+  <select [(ngModel)]="language">
+    <option value="html">html</option>
+    <option value="css">css</option>
+    <option value="js">js</option>
+  </select>
+</label>
+
 <code-editor #editor
              [(ngModel)]="code"
              [ngModelOptions]="{updateOn:'blur'}"
@@ -25,7 +33,8 @@
              [disabled]="disabled"
              [readonly]="readonly"
              [placeholder]="placeholder"
-             [autoFocus]="true" />
+             [autoFocus]="true"
+             [language]="language" />
 
 <pre>{{code}}</pre>
 

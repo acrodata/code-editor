@@ -14,7 +14,8 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { Annotation, EditorState, Extension, StateEffect } from '@codemirror/state';
+import { languages } from '@codemirror/language-data';
+import { Annotation, Compartment, EditorState, Extension, StateEffect } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { placeholder } from '@codemirror/view';
 import { EditorView, basicSetup } from 'codemirror';
@@ -71,6 +72,16 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   /** Whether focus on the editor when init. */
   @Input() autoFocus = false;
 
+  @Input()
+  get language() {
+    return this._language;
+  }
+  set language(lang: string) {
+    this._language = lang;
+    this.setLanguage(lang);
+  }
+  _language = '';
+
   /**
    * EditorState's [extensions](https://codemirror.net/docs/ref/#state.EditorStateConfig.extensions).
    * It includes the [basicSetup](https://codemirror.net/docs/ref/#codemirror.basicSetup) by default.
@@ -87,6 +98,8 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   @Output() blur = new EventEmitter<void>();
 
   view?: EditorView | null;
+
+  langCompartment = new Compartment();
 
   private _onChange: (value: string) => void = () => {};
   private _onTouched: () => void = () => {};
@@ -106,6 +119,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   getExtensions(): Extension[] {
     const basicExtensions = [
       this._updateListener,
+      this.langCompartment.of([]),
       EditorView.editable.of(!this.disabled),
       EditorState.readOnly.of(this.readonly),
       placeholder(this.placeholder),
@@ -133,6 +147,38 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   setValue(value: string) {
     this.view?.dispatch({
       changes: { from: 0, to: this.view.state.doc.length, insert: value },
+    });
+  }
+
+  /** Find the language's extension by its name. Case insensitive. */
+  findLanguage(name: string) {
+    for (const lang of languages) {
+      for (const alias of [lang.name, ...lang.alias]) {
+        if (name.toLowerCase() === alias.toLowerCase()) {
+          return lang;
+        }
+      }
+    }
+    console.error(`Language not found: ${this.language}`);
+    console.info('Supported language names:', languages.map(lang => lang.name).join(', '));
+    return null;
+  }
+
+  /** Sets the language of the editor. */
+  setLanguage(lang: string) {
+    if (!lang) {
+      this.view?.dispatch({
+        effects: this.langCompartment.reconfigure([]),
+      });
+      return;
+    }
+
+    const langDesc = this.findLanguage(lang);
+
+    langDesc?.load().then(lang => {
+      this.view?.dispatch({
+        effects: this.langCompartment.reconfigure([lang]),
+      });
     });
   }
 
