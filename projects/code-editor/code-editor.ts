@@ -10,6 +10,7 @@ import {
   Output,
   SimpleChanges,
   ViewEncapsulation,
+  booleanAttribute,
   forwardRef,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -61,17 +62,45 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   @Input() theme: Theme = 'light';
 
   /** Editor's placecholder. */
-  @Input() placeholder = '';
+  @Input()
+  get placeholder() {
+    return this._placeholder;
+  }
+  set placeholder(value: string) {
+    this._placeholder = value;
+    this.reconfigure();
+  }
+  _placeholder = '';
 
   /** Whether the editor is disabled.  */
-  @Input() disabled = false;
+  @Input({ transform: booleanAttribute })
+  get disabled() {
+    return this._disabled;
+  }
+  set disabled(value: boolean) {
+    this._disabled = value;
+    // run `reconfigure()` in the setDisabledState
+  }
+  _disabled = false;
 
   /** Whether the editor is readonly. */
-  @Input() readonly = false;
+  @Input({ transform: booleanAttribute })
+  get readonly() {
+    return this._readonly;
+  }
+  set readonly(value: boolean) {
+    this._readonly = value;
+    this.reconfigure();
+  }
+  _readonly = false;
 
   /** Whether focus on the editor when init. */
-  @Input() autoFocus = false;
+  @Input({ transform: booleanAttribute }) autoFocus = false;
 
+  /**
+   * Editor's language. Check the supported
+   * [languages](https://github.com/codemirror/language-data/blob/main/src/language-data.ts).
+   */
   @Input()
   get language() {
     return this._language;
@@ -182,11 +211,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     });
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (this.view) {
-      this.reconfigure();
-    }
-  }
+  ngOnChanges(changes: SimpleChanges): void {}
 
   ngOnInit(): void {
     this.view = new EditorView({
