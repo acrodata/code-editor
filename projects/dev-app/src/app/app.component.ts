@@ -16,6 +16,7 @@ export class AppComponent {
   readonly = false;
   placeholder = 'Type your code here...';
   language = 'js';
+  languages = [];
 
   code = 'console.log("Hello world")';
 

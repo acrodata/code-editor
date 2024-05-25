@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { languages } from '@codemirror/language-data';
+import { LanguageDescription } from '@codemirror/language';
 import { Annotation, Compartment, EditorState, Extension, StateEffect } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { placeholder } from '@codemirror/view';
@@ -56,7 +56,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     this._value = newValue;
     this.setValue(newValue);
   }
-  _value = '';
+  private _value = '';
 
   /** Editor's theme. */
   @Input() theme: Theme = 'light';
@@ -70,7 +70,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     this._placeholder = value;
     this.reconfigure();
   }
-  _placeholder = '';
+  private _placeholder = '';
 
   /** Whether the editor is disabled.  */
   @Input({ transform: booleanAttribute })
@@ -81,7 +81,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     this._disabled = value;
     // run `reconfigure()` in the setDisabledState
   }
-  _disabled = false;
+  private _disabled = false;
 
   /** Whether the editor is readonly. */
   @Input({ transform: booleanAttribute })
@@ -92,24 +92,38 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     this._readonly = value;
     this.reconfigure();
   }
-  _readonly = false;
+  private _readonly = false;
 
   /** Whether focus on the editor when init. */
   @Input({ transform: booleanAttribute }) autoFocus = false;
 
   /**
-   * Editor's language. Check the supported
-   * [languages](https://github.com/codemirror/language-data/blob/main/src/language-data.ts).
+   * An array of language descriptions for known language packages.
+   *
+   * https://github.com/codemirror/language-data/blob/main/src/language-data.ts
    */
+  @Input()
+  get languages() {
+    return this._languages;
+  }
+  set languages(value: LanguageDescription[]) {
+    this._languages = value;
+    this.setLanguage(this.language);
+  }
+  private _languages: LanguageDescription[] = [];
+
+  /** Editor's language. You should set the `languages` option at first. */
   @Input()
   get language() {
     return this._language;
   }
   set language(lang: string) {
     this._language = lang;
-    this.setLanguage(lang);
+    if (this.languages.length > 0) {
+      this.setLanguage(lang);
+    }
   }
-  _language = '';
+  private _language = '';
 
   /**
    * EditorState's [extensions](https://codemirror.net/docs/ref/#state.EditorStateConfig.extensions).
@@ -181,19 +195,27 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
 
   /** Find the language's extension by its name. Case insensitive. */
   findLanguage(name: string) {
-    for (const lang of languages) {
+    for (const lang of this.languages) {
       for (const alias of [lang.name, ...lang.alias]) {
         if (name.toLowerCase() === alias.toLowerCase()) {
           return lang;
         }
       }
     }
+
     console.error(`Language not found: ${this.language}`);
-    console.info('Supported language names:', languages.map(lang => lang.name).join(', '));
+
+    if (this.languages.length === 0) {
+      console.error('The languages is empty.');
+    } else {
+      console.info('Supported language names:');
+      console.info(this.languages.map(lang => lang.name).join(', '));
+    }
+
     return null;
   }
 
-  /** Sets the language of the editor. */
+  /** Sets the language's extension for the editor. */
   setLanguage(lang: string) {
     if (!lang) {
       this.view?.dispatch({
@@ -203,7 +225,6 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     }
 
     const langDesc = this.findLanguage(lang);
-
     langDesc?.load().then(lang => {
       this.view?.dispatch({
         effects: this.langCompartment.reconfigure([lang]),
