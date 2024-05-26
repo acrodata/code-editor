@@ -15,15 +15,17 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { LanguageDescription } from '@codemirror/language';
+import { indentWithTab } from '@codemirror/commands';
+import { LanguageDescription, indentUnit } from '@codemirror/language';
 import { Annotation, Compartment, EditorState, Extension, StateEffect } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { placeholder } from '@codemirror/view';
-import { EditorView, basicSetup } from 'codemirror';
-
-const External = Annotation.define<boolean>();
+import { EditorView, highlightWhitespace, keymap, placeholder } from '@codemirror/view';
+import { basicSetup, minimalSetup } from 'codemirror';
 
 export type Theme = 'light' | 'dark' | Extension;
+export type Setup = 'basic' | 'minimal' | null;
+
+const External = Annotation.define<boolean>();
 
 @Component({
   selector: 'code-editor',
@@ -41,11 +43,13 @@ export type Theme = 'light' | 'dark' | Extension;
 })
 export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAccessor {
   /**
-   * The document or shadow root that the view lives in.
-   *
-   * https://codemirror.net/docs/ref/#view.EditorView.root
+   * The document or shadow [root](https://codemirror.net/docs/ref/#view.EditorView.root)
+   * that the view lives in.
    */
   @Input() root?: Document | ShadowRoot;
+
+  /** Whether focus on the editor when init. */
+  @Input({ transform: booleanAttribute }) autoFocus = false;
 
   /** Editor's value. */
   @Input()
@@ -59,7 +63,15 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   private _value = '';
 
   /** Editor's theme. */
-  @Input() theme: Theme = 'light';
+  @Input()
+  get theme() {
+    return this._theme;
+  }
+  set theme(value: Theme) {
+    this._theme = value;
+    this.reconfigure();
+  }
+  private _theme: Theme = 'light';
 
   /** Editor's placecholder. */
   @Input()
@@ -94,13 +106,53 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   }
   private _readonly = false;
 
-  /** Whether focus on the editor when init. */
-  @Input({ transform: booleanAttribute }) autoFocus = false;
+  /** A binding that binds Tab to indentMore and Shift-Tab to indentLess. */
+  @Input({ transform: booleanAttribute })
+  get indentWithTab() {
+    return this._indentWithTab;
+  }
+  set indentWithTab(value: boolean) {
+    this._indentWithTab = value;
+    this.reconfigure();
+  }
+  private _indentWithTab = false;
+
+  /** Should be a string consisting either entirely of the same whitespace character. */
+  @Input()
+  get indentUnit() {
+    return this._indentUnit;
+  }
+  set indentUnit(value: string) {
+    this._indentUnit = value;
+    this.reconfigure();
+  }
+  private _indentUnit = '';
+
+  /** Whether this editor wraps lines. */
+  @Input({ transform: booleanAttribute })
+  get lineWrapping() {
+    return this._lineWrapping;
+  }
+  set lineWrapping(value: boolean) {
+    this._lineWrapping = value;
+    this.reconfigure();
+  }
+  private _lineWrapping = false;
+
+  /** Whether highlight the whitespace. */
+  @Input({ transform: booleanAttribute })
+  get highlightWhitespace() {
+    return this._highlightWhitespace;
+  }
+  set highlightWhitespace(value: boolean) {
+    this._highlightWhitespace = value;
+    this.reconfigure();
+  }
+  private _highlightWhitespace = false;
 
   /**
-   * An array of language descriptions for known language packages.
-   *
-   * https://github.com/codemirror/language-data/blob/main/src/language-data.ts
+   * An array of language descriptions for known
+   * [language packages](https://github.com/codemirror/language-data/blob/main/src/language-data.ts).
    */
   @Input()
   get languages() {
@@ -126,10 +178,22 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   private _language = '';
 
   /**
-   * EditorState's [extensions](https://codemirror.net/docs/ref/#state.EditorStateConfig.extensions).
-   * It includes the [basicSetup](https://codemirror.net/docs/ref/#codemirror.basicSetup) by default.
+   * The editor's built-in setup. The value can be set to
+   * [`basic`](https://codemirror.net/docs/ref/#codemirror.basicSetup),
+   * [`minimal`](https://codemirror.net/docs/ref/#codemirror.minimalSetup) or `null`.
    */
-  @Input() extensions: Extension[] = [basicSetup];
+  @Input()
+  get setup() {
+    return this._setup;
+  }
+  set setup(value: Setup) {
+    this._setup = value;
+    this.reconfigure();
+  }
+  private _setup: Setup = 'basic';
+
+  /** EditorState's [extensions](https://codemirror.net/docs/ref/#state.EditorStateConfig.extensions). */
+  @Input() extensions: Extension[] = [];
 
   /** Event emitted when the editor's value changes. */
   @Output() change = new EventEmitter<string>();
@@ -140,14 +204,14 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   /** Event emitted when the editor has lost focus. */
   @Output() blur = new EventEmitter<void>();
 
-  view?: EditorView | null;
-
-  langCompartment = new Compartment();
-
   private _onChange: (value: string) => void = () => {};
   private _onTouched: () => void = () => {};
 
   constructor(private _elementRef: ElementRef<Element>) {}
+
+  view?: EditorView | null;
+
+  private _languageConf = new Compartment();
 
   /** Register a function to be called every time the view updates. */
   private _updateListener = EditorView.updateListener.of(vu => {
@@ -162,10 +226,9 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   getExtensions(): Extension[] {
     const basicExtensions = [
       this._updateListener,
-      this.langCompartment.of([]),
+      this._languageConf.of([]),
       EditorView.editable.of(!this.disabled),
       EditorState.readOnly.of(this.readonly),
-      placeholder(this.placeholder),
     ];
 
     if (this.theme == 'light') {
@@ -174,6 +237,26 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
       basicExtensions.push(oneDark);
     } else {
       basicExtensions.push(this.theme);
+    }
+    if (this.placeholder) {
+      basicExtensions.push(placeholder(this.placeholder));
+    }
+    if (this.indentWithTab) {
+      basicExtensions.push(keymap.of([indentWithTab]));
+    }
+    if (this.indentUnit) {
+      basicExtensions.push(indentUnit.of(this.indentUnit));
+    }
+    if (this.lineWrapping) {
+      basicExtensions.push(EditorView.lineWrapping);
+    }
+    if (this.highlightWhitespace) {
+      basicExtensions.push(highlightWhitespace());
+    }
+    if (this.setup === 'basic') {
+      basicExtensions.push(basicSetup);
+    } else if (this.setup === 'minimal') {
+      basicExtensions.push(minimalSetup);
     }
 
     return basicExtensions.concat(this.extensions);
@@ -204,7 +287,6 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     }
 
     console.error(`Language not found: ${this.language}`);
-
     if (this.languages.length === 0) {
       console.error('The languages is empty.');
     } else {
@@ -219,7 +301,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   setLanguage(lang: string) {
     if (!lang) {
       this.view?.dispatch({
-        effects: this.langCompartment.reconfigure([]),
+        effects: this._languageConf.reconfigure([]),
       });
       return;
     }
@@ -227,7 +309,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     const langDesc = this.findLanguage(lang);
     langDesc?.load().then(lang => {
       this.view?.dispatch({
-        effects: this.langCompartment.reconfigure([lang]),
+        effects: this._languageConf.reconfigure([lang]),
       });
     });
   }

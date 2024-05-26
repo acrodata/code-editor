@@ -1,4 +1,4 @@
-import { CodeEditor, Theme } from '@acrodata/code-editor';
+import { CodeEditor, Setup, Theme } from '@acrodata/code-editor';
 import { Component } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
@@ -12,9 +12,14 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   theme: Theme = 'light';
+  setup: Setup = 'basic';
   disabled = false;
   readonly = false;
   placeholder = 'Type your code here...';
+  indentWithTab = false;
+  indentUnit = '';
+  lineWrapping = false;
+  highlightWhitespace = false;
   language = 'js';
   languages = [];
 
