@@ -42,7 +42,7 @@
 </label>
 
 <label>
-  <select [(ngModel)]="language">
+  <select [(ngModel)]="language" (ngModelChange)="setLanguage()">
     <option value="html">html</option>
     <option value="css">css</option>
     <option value="js">js</option>
@@ -63,8 +63,7 @@
              [indentUnit]="indentUnit"
              [lineWrapping]="lineWrapping"
              [highlightWhitespace]="highlightWhitespace"
-             [language]="language"
-             [languages]="languages" />
+             [extensions]="extensions" />
 
 <pre>{{code}}</pre>
 

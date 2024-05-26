@@ -3,6 +3,11 @@ import { Component } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
 
+import { css } from '@codemirror/lang-css';
+import { html } from '@codemirror/lang-html';
+import { javascript } from '@codemirror/lang-javascript';
+import { Extension } from '@codemirror/state';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -23,9 +28,21 @@ export class AppComponent {
   language = 'js';
   languages = [];
 
+  extensions: Extension[] = [];
+
   code = 'console.log("Hello world")';
 
   editorControl = new FormControl({ value: 'hello', disabled: true });
+
+  setLanguage() {
+    if (this.language === 'html') {
+      this.extensions = [html()];
+    } else if (this.language === 'css') {
+      this.extensions = [css()];
+    } else if (this.language === 'js') {
+      this.extensions = [javascript()];
+    }
+  }
 
   log(e: any) {
     console.log(e);

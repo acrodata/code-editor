@@ -4,11 +4,9 @@ import {
   ElementRef,
   EventEmitter,
   Input,
-  OnChanges,
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges,
   ViewEncapsulation,
   booleanAttribute,
   forwardRef,
@@ -41,7 +39,7 @@ const External = Annotation.define<boolean>();
     },
   ],
 })
-export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAccessor {
+export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
   /**
    * The document or shadow [root](https://codemirror.net/docs/ref/#view.EditorView.root)
    * that the view lives in.
@@ -64,91 +62,54 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
 
   /** Editor's theme. */
   @Input()
-  get theme() {
-    return this._theme;
-  }
   set theme(value: Theme) {
-    this._theme = value;
-    this.reconfigure();
+    this._dispatchEffects(
+      this._themeConf.reconfigure(value === 'light' ? [] : value === 'dark' ? oneDark : value)
+    );
   }
-  private _theme: Theme = 'light';
 
   /** Editor's placecholder. */
   @Input()
-  get placeholder() {
-    return this._placeholder;
-  }
   set placeholder(value: string) {
-    this._placeholder = value;
-    this.reconfigure();
+    this._dispatchEffects(this._placeholderConf.reconfigure(value ? placeholder(value) : []));
   }
-  private _placeholder = '';
 
   /** Whether the editor is disabled.  */
-  @Input({ transform: booleanAttribute })
-  get disabled() {
-    return this._disabled;
-  }
-  set disabled(value: boolean) {
-    this._disabled = value;
-    // run `reconfigure()` in the setDisabledState
-  }
-  private _disabled = false;
+  @Input({ transform: booleanAttribute }) disabled = false;
 
   /** Whether the editor is readonly. */
   @Input({ transform: booleanAttribute })
-  get readonly() {
-    return this._readonly;
-  }
   set readonly(value: boolean) {
-    this._readonly = value;
-    this.reconfigure();
+    this._dispatchEffects(this._readonlyConf.reconfigure(EditorState.readOnly.of(value)));
   }
-  private _readonly = false;
 
   /** A binding that binds Tab to indentMore and Shift-Tab to indentLess. */
   @Input({ transform: booleanAttribute })
-  get indentWithTab() {
-    return this._indentWithTab;
-  }
   set indentWithTab(value: boolean) {
-    this._indentWithTab = value;
-    this.reconfigure();
+    this._dispatchEffects(
+      this._indentWithTabConf.reconfigure(value ? keymap.of([indentWithTab]) : [])
+    );
   }
-  private _indentWithTab = false;
 
   /** Should be a string consisting either entirely of the same whitespace character. */
   @Input()
-  get indentUnit() {
-    return this._indentUnit;
-  }
   set indentUnit(value: string) {
-    this._indentUnit = value;
-    this.reconfigure();
+    this._dispatchEffects(this._indentUnitConf.reconfigure(value ? indentUnit.of(value) : []));
   }
-  private _indentUnit = '';
 
   /** Whether this editor wraps lines. */
   @Input({ transform: booleanAttribute })
-  get lineWrapping() {
-    return this._lineWrapping;
-  }
   set lineWrapping(value: boolean) {
-    this._lineWrapping = value;
-    this.reconfigure();
+    this._dispatchEffects(this._lineWrappingConf.reconfigure(value ? EditorView.lineWrapping : []));
   }
-  private _lineWrapping = false;
 
   /** Whether highlight the whitespace. */
   @Input({ transform: booleanAttribute })
-  get highlightWhitespace() {
-    return this._highlightWhitespace;
-  }
   set highlightWhitespace(value: boolean) {
-    this._highlightWhitespace = value;
-    this.reconfigure();
+    this._dispatchEffects(
+      this._highlightWhitespaceConf.reconfigure(value ? highlightWhitespace() : [])
+    );
   }
-  private _highlightWhitespace = false;
 
   /**
    * An array of language descriptions for known
@@ -169,10 +130,10 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   get language() {
     return this._language;
   }
-  set language(lang: string) {
-    this._language = lang;
+  set language(value: string) {
+    this._language = value;
     if (this.languages.length > 0) {
-      this.setLanguage(lang);
+      this.setLanguage(value);
     }
   }
   private _language = '';
@@ -193,7 +154,15 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   private _setup: Setup = 'basic';
 
   /** EditorState's [extensions](https://codemirror.net/docs/ref/#state.EditorStateConfig.extensions). */
-  @Input() extensions: Extension[] = [];
+  @Input()
+  get extensions() {
+    return this._extensions;
+  }
+  set extensions(value: Extension[]) {
+    this._extensions = value;
+    this.reconfigure();
+  }
+  private _extensions: Extension[] = [];
 
   /** Event emitted when the editor's value changes. */
   @Output() change = new EventEmitter<string>();
@@ -211,8 +180,6 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
 
   view?: EditorView | null;
 
-  private _languageConf = new Compartment();
-
   /** Register a function to be called every time the view updates. */
   private _updateListener = EditorView.updateListener.of(vu => {
     if (vu.docChanged && !vu.transactions.some(tr => tr.annotation(External))) {
@@ -222,57 +189,61 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     }
   });
 
+  // Extension compartments can be used to make a configuration dynamic.
+  // https://codemirror.net/docs/ref/#state.Compartment
+  private _themeConf = new Compartment();
+  private _placeholderConf = new Compartment();
+  private _disabledConf = new Compartment();
+  private _readonlyConf = new Compartment();
+  private _indentWithTabConf = new Compartment();
+  private _indentUnitConf = new Compartment();
+  private _lineWrappingConf = new Compartment();
+  private _highlightWhitespaceConf = new Compartment();
+  private _languageConf = new Compartment();
+
   /** Get the extensions of the editor. */
-  getExtensions(): Extension[] {
-    const basicExtensions = [
+  private _getExtensions(): Extension[] {
+    return [
       this._updateListener,
+
+      this._themeConf.of([]),
+      this._placeholderConf.of([]),
+      this._disabledConf.of([]),
+      this._readonlyConf.of([]),
+      this._indentWithTabConf.of([]),
+      this._indentUnitConf.of([]),
+      this._lineWrappingConf.of([]),
+      this._highlightWhitespaceConf.of([]),
       this._languageConf.of([]),
-      EditorView.editable.of(!this.disabled),
-      EditorState.readOnly.of(this.readonly),
+
+      this._setup === 'basic' ? basicSetup : this._setup === 'minimal' ? minimalSetup : [],
+
+      ...this.extensions,
     ];
-
-    if (this.theme == 'light') {
-      // nothing to do
-    } else if (this.theme == 'dark') {
-      basicExtensions.push(oneDark);
-    } else {
-      basicExtensions.push(this.theme);
-    }
-    if (this.placeholder) {
-      basicExtensions.push(placeholder(this.placeholder));
-    }
-    if (this.indentWithTab) {
-      basicExtensions.push(keymap.of([indentWithTab]));
-    }
-    if (this.indentUnit) {
-      basicExtensions.push(indentUnit.of(this.indentUnit));
-    }
-    if (this.lineWrapping) {
-      basicExtensions.push(EditorView.lineWrapping);
-    }
-    if (this.highlightWhitespace) {
-      basicExtensions.push(highlightWhitespace());
-    }
-    if (this.setup === 'basic') {
-      basicExtensions.push(basicSetup);
-    } else if (this.setup === 'minimal') {
-      basicExtensions.push(minimalSetup);
-    }
-
-    return basicExtensions.concat(this.extensions);
   }
 
-  /** Reconfigure the root extensions of the editor. */
+  private _dispatchEffects(effects: StateEffect<any> | readonly StateEffect<any>[]) {
+    return this.view?.dispatch({ effects });
+  }
+
   reconfigure() {
-    this.view?.dispatch({
-      effects: StateEffect.reconfigure.of(this.getExtensions()),
-    });
+    this._dispatchEffects(StateEffect.reconfigure.of(this._getExtensions()));
   }
 
-  /** Sets the editor's value. */
   setValue(value: string) {
     this.view?.dispatch({
       changes: { from: 0, to: this.view.state.doc.length, insert: value },
+    });
+  }
+
+  setLanguage(lang: string) {
+    if (!lang) {
+      this._dispatchEffects(this._languageConf.reconfigure([]));
+      return;
+    }
+    const langDesc = this.findLanguage(lang);
+    langDesc?.load().then(lang => {
+      this._dispatchEffects(this._languageConf.reconfigure([lang]));
     });
   }
 
@@ -285,36 +256,14 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
         }
       }
     }
-
     console.error(`Language not found: ${this.language}`);
     if (this.languages.length === 0) {
-      console.error('The languages is empty.');
+      console.error('No supported languages. Please set the languages option at first.');
     } else {
-      console.info('Supported language names:');
-      console.info(this.languages.map(lang => lang.name).join(', '));
+      console.info('Supported language names: ', this.languages.map(lang => lang.name).join(', '));
     }
-
     return null;
   }
-
-  /** Sets the language's extension for the editor. */
-  setLanguage(lang: string) {
-    if (!lang) {
-      this.view?.dispatch({
-        effects: this._languageConf.reconfigure([]),
-      });
-      return;
-    }
-
-    const langDesc = this.findLanguage(lang);
-    langDesc?.load().then(lang => {
-      this.view?.dispatch({
-        effects: this._languageConf.reconfigure([lang]),
-      });
-    });
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {}
 
   ngOnInit(): void {
     this.view = new EditorView({
@@ -322,7 +271,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
       parent: this._elementRef.nativeElement,
       state: EditorState.create({
         doc: this.value,
-        extensions: this.getExtensions(),
+        extensions: this._getExtensions(),
       }),
     });
 
@@ -362,6 +311,6 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
 
   setDisabledState(isDisabled: boolean) {
     this.disabled = isDisabled;
-    this.reconfigure();
+    this._dispatchEffects(this._disabledConf.reconfigure(EditorView.editable.of(!isDisabled)));
   }
 }
