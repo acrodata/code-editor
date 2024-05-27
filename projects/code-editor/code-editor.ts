@@ -29,6 +29,18 @@ const External = Annotation.define<boolean>();
   selector: 'code-editor',
   standalone: true,
   template: ``,
+  styles: `
+    .code-editor {
+      display: block;
+
+      .cm-editor {
+        height: 100%;
+      }
+    }
+  `,
+  host: {
+    class: 'code-editor',
+  },
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -46,7 +58,7 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
    */
   @Input() root?: Document | ShadowRoot;
 
-  /** Whether focus on the editor when init. */
+  /** Whether focus on the editor after init. */
   @Input({ transform: booleanAttribute }) autoFocus = false;
 
   /** Editor's value. */
