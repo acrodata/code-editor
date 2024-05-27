@@ -28,11 +28,11 @@ export class AppComponent {
   language = 'js';
   languages = [];
 
-  extensions: Extension[] = [];
+  extensions: Extension[] = [javascript()];
 
   code = 'console.log("Hello world")';
 
-  editorControl = new FormControl({ value: 'hello', disabled: true });
+  editorControl = new FormControl({ value: this.code, disabled: false });
 
   setLanguage() {
     if (this.language === 'html') {

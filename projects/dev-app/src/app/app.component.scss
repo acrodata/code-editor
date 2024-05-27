@@ -1,0 +1,20 @@
+fieldset {
+  margin: 16px 0;
+  border: 1px solid #ccc;
+
+  >span,
+  >label {
+    display: inline-block;
+    margin: 0 4px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+code-editor {
+  border: 1px solid #ccc;
+}
