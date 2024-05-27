@@ -16,6 +16,7 @@
     "lint:ts": "eslint \"**/*.ts\" --fix",
     "lint:scss": "stylelint \"**/*.scss\" --fix",
     "build:lib": "ng build code-editor",
+    "postbuild:lib": "cp README.md dist/code-editor",
     "publish": "npm run build:lib && cd dist/code-editor && npm publish",
     "predeploy": "npm run build",
     "deploy": "angular-cli-ghpages --no-silent --dir=dist/dev-app/browser",

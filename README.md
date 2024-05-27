@@ -1,6 +1,9 @@
 # Code Editor
 
-CodeMirror 6 wrapper for Angular
+[![npm](https://img.shields.io/npm/v/@acrodata/code-editor.svg)](https://www.npmjs.com/package/@acrodata/code-editor)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/acrodata/code-editor/blob/main/LICENSE)
+
+CodeMirror6 wrapper for Angular
 
 ## Installation
 
@@ -22,7 +25,7 @@ import { CodeEditor } from '@acrodata/code-editor';
   imports: [FormsModule, CodeEditor],
 })
 export class YourAppComponent {
-  value = '';
+  value = 'console.log("Hello world")';
 }
 ```
 
