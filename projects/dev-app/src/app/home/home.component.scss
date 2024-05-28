@@ -1,0 +1,27 @@
+:host ::ng-deep {
+  mat-sidenav-container {
+    height: calc(100% - 64px);
+  }
+
+  mat-sidenav-content {
+    padding: 16px;
+  }
+
+  mtx-split {
+    border: 1px solid var(--mat-divider-color);
+  }
+
+  pre {
+    padding: 4px;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .gui-form {
+    padding: 12px 0;
+
+    .gui-field-label {
+      width: 100px;
+    }
+  }
+}

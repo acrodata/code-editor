@@ -1,20 +1,15 @@
-fieldset {
-  margin: 16px 0;
-  border: 1px solid #ccc;
-
-  >span,
-  >label {
-    display: inline-block;
-    margin: 0 4px;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+html,
+body {
+  margin: 0;
+  height: 100%;
 }
 
-code-editor {
-  border: 1px solid #ccc;
+.spacer {
+  flex: 1;
 }

@@ -1,0 +1,33 @@
+<mat-sidenav-container>
+  <mat-sidenav-content>
+
+    <mtx-split [style.height]="options.height.value+options.height.unit">
+      <mtx-split-pane>
+        <code-editor #editor
+                     [style.height]="options.height.value+options.height.unit"
+                     [(ngModel)]="code"
+                     (ngModelChange)="log($event)"
+                     [theme]="options.theme"
+                     [setup]="options.setup"
+                     [disabled]="options.disabled"
+                     [readonly]="options.readonly"
+                     [placeholder]="options.placeholder"
+                     [indentWithTab]="options.indentWithTab"
+                     [indentUnit]="options.indentUnit"
+                     [lineWrapping]="options.lineWrapping"
+                     [highlightWhitespace]="options.highlightWhitespace"
+                     [language]="options.language"
+                     [languages]="languages" />
+      </mtx-split-pane>
+
+      <mtx-split-pane>
+        <pre>{{code}}</pre>
+      </mtx-split-pane>
+    </mtx-split>
+
+  </mat-sidenav-content>
+
+  <mat-sidenav mode="side" position="end" opened>
+    <gui-form [style.width.px]="300" [config]="config" [model]="options" />
+  </mat-sidenav>
+</mat-sidenav-container>
