@@ -1,0 +1,13 @@
+CREATE TABLE students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    age INT NOT NULL,
+    grade VARCHAR(10)
+);
+
+INSERT INTO students (name, age, grade) VALUES
+('Alice', 18, 'Sophomore'),
+('Bob', 19, 'Junior'),
+('Charlie', 20, 'Senior');
+
+SELECT * FROM students;

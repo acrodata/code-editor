@@ -1,0 +1,17 @@
+function f(x, y)
+    x[1] = 42    # mutates x
+    y = 7 + y    # new binding for y, no mutation
+    return y
+end
+
+fib(n::Integer) = n ≤ 2 ? one(n) : fib(n-1) + fib(n-2)
+
+map([A, B, C]) do x
+    if x < 0 && iseven(x)
+        return 0
+    elseif x == 0
+        return 1
+    else
+        return x
+    end
+end

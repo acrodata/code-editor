@@ -1,5 +1,8 @@
+'use strict';
+
 /**
  * foo
+ *
  * @param {string[]} items
  * @param nada
  */
