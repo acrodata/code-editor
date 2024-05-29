@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AfterViewInit, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MtxSplitModule } from '@ng-matero/extensions/split';
 
@@ -21,14 +22,20 @@ import { languages } from '@codemirror/language-data';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   languages = languages;
+
+  form = new FormGroup({});
 
   config: GuiFields = {
     language: {
       type: 'select',
       name: 'Language',
-      options: languages.map(lang => ({ label: lang.name, value: lang.name.toLowerCase() })),
+      options: languages
+        .map(lang => ({ label: lang.name, value: lang.name.toLowerCase() }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
     },
     theme: {
       type: 'buttonToggle',
@@ -108,14 +115,36 @@ export class HomeComponent implements OnInit {
     indentUnit: '',
     lineWrapping: false,
     highlightWhitespace: false,
-    height: { value: 200, unit: 'px' },
+    height: { value: 100, unit: '%' },
   };
 
-  code = 'console.log("Hello world")';
+  code = '';
 
   log(e: any) {
     console.log(e);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.getLangSample('javascript');
+  }
+
+  ngAfterViewInit(): void {
+    this.form
+      .get('language')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((lang: string) => {
+        console.log(lang);
+        this.getLangSample(lang.replace(' ', '_').replace('#', 'sharp'));
+      });
+  }
+
+  getLangSample(lang: string) {
+    fetch(`/assets/lang_samples/${lang}.txt`).then(async response => {
+      if (response.ok) {
+        this.code = await response.text();
+      } else {
+        this.code = '';
+      }
+    });
+  }
 }
