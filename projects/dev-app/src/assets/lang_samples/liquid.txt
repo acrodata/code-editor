@@ -1,0 +1,18 @@
+<!-- If customer.name = "anonymous" -->
+{% if customer.name == "kevin" %}
+  Hey Kevin!
+{% elsif customer.name == "anonymous" %}
+  Hey Anonymous!
+{% else %}
+  Hi Stranger!
+{% endif %}
+
+{% assign handle = "cake" %}
+{% case handle %}
+  {% when "cake" %}
+     This is a cake
+  {% when "cookie", "biscuit" %}
+     This is a cookie
+  {% else %}
+     This is not a cake nor a cookie
+{% endcase %}

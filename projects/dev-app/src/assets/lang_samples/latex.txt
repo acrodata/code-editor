@@ -1,0 +1,45 @@
+% This is a template for doing homework assignments in LaTeX
+
+\documentclass{article} % This command is used to set the type of document you are working on such as an article, book, or presenation
+
+\usepackage{geometry} % This package allows the editing of the page layout
+\usepackage{amsmath}  % This package allows the use of a large range of mathematical formula, commands, and symbols
+\usepackage{graphicx}  % This package allows the importing of images
+
+\newcommand{\question}[2][]{\begin{flushleft}
+        \textbf{Question #1}: \textit{#2}
+
+\end{flushleft}}
+\newcommand{\sol}{\textbf{Solution}:} %Use if you want a boldface solution line
+\newcommand{\maketitletwo}[2][]{\begin{center}
+        \Large{\textbf{Assignment #1}
+
+            Course Title} % Name of course here
+        \vspace{5pt}
+
+        \normalsize{Matthew Frenkel  % Your name here
+
+        \today}        % Change to due date if preferred
+        \vspace{15pt}
+
+\end{center}}
+\begin{document}
+    \maketitletwo[5]  % Optional argument is assignment number
+    %Keep a blank space between maketitletwo and \question[1]
+
+    \question[1]{Here is my first question}
+
+    YOUR SOLUTION HERE
+
+    \question[2]{Here is my second question}
+
+    YOUR SOLUTION HERE
+
+    \question[3]{What is the \Large{$\int_0^2 x^2 \, dx $}\normalsize{. Show all steps}}
+
+    \begin{align*}
+    \int_0^2 x^2 &= \left. \frac{x^3}{3} \right|_0^2 \\
+                 &= \frac{2^3}{3}-\frac{0^3}{3}\\
+                 &= \frac{8}{3}
+    \end{align*}
+\end{document}

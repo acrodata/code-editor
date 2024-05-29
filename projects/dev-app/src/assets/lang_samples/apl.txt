@@ -1,0 +1,22 @@
+∇ FizzBuzz end;i
+:For i :In ⍳end
+    :If 0=15|i
+        ⎕←'FizzBuzz'
+    :ElseIf 0=3|i
+        ⎕←'Fizz'
+    :ElseIf 0=5|i
+        ⎕←'Buzz'
+    :Else
+        ⎕←i
+    :EndIf
+:EndFor
+∇
+
+⎕ ← data ← (1 2 3 4) (2 5 8 6) (8 6 2 3) (8 7 6 1)
+
+]dinput
+Sum ← {
+    ⍺ ← 0        ⍝ Left arg defaults to 0 if not given
+    0=≢⍵: ⍺      ⍝ If right arg is empty, return left arg
+    (⍺+⊃⍵)∇1↓⍵   ⍝ Add head to acc, recur over tail
+}

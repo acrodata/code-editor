@@ -1,0 +1,19 @@
+a(href='//google.com') Google
+|
+|
+a(class='button' href='//google.com') Google
+|
+|
+a(class='button', href='//google.com') Google
+
+- var friends = 10
+case friends
+  when 0
+    p you have no friends
+  when 1
+    p you have a friend
+  default
+    p you have #{friends} friends
+
+- for (var x = 0; x < 3; x++)
+  li item

@@ -1,0 +1,14 @@
+(defclass bicycle (vehicle)
+  ((mass :reader bicycle-mass
+         :initarg :mass
+         :type real
+         :documentation "The bike's mass."))
+  (:documentation "A bicycle."))
+
+(defclass canoe (vehicle)
+  ((rowers :reader canoe-rowers
+           :initarg :rowers
+           :initform 0
+           :type (integer 0)
+           :documentation "The number of rowers."))
+  (:documentation "A canoe."))
