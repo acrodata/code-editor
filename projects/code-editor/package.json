@@ -1,7 +1,7 @@
 {
   "name": "@acrodata/code-editor",
   "version": "0.2.0",
-  "description": "CodeMirror6 wrapper for Angular",
+  "description": "CodeMirror 6 wrapper for Angular",
   "publishConfig": {
     "access": "public"
   },

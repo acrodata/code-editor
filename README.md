@@ -3,7 +3,14 @@
 [![npm](https://img.shields.io/npm/v/@acrodata/code-editor.svg)](https://www.npmjs.com/package/@acrodata/code-editor)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/acrodata/code-editor/blob/main/LICENSE)
 
-CodeMirror6 wrapper for Angular
+<img src="https://github.com/acrodata/code-editor/assets/20625845/2a511ccf-bf6a-414b-9f0d-4aafe4a8079b" width="400" alt="codemirror+angular">
+
+CodeMirror 6 wrapper for Angular
+
+#### Quick links
+
+[Documentation](https://acrodata.github.io/code-editor/) |
+[Playground](https://acrodata.github.io/code-editor/)
 
 ## Installation
 
