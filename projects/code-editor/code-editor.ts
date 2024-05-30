@@ -53,13 +53,26 @@ const External = Annotation.define<boolean>();
 })
 export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
   /**
-   * The document or shadow [root](https://codemirror.net/docs/ref/#view.EditorView.root)
-   * that the view lives in.
+   * EditorView's [root](https://codemirror.net/docs/ref/#view.EditorView.root).
    */
   @Input() root?: Document | ShadowRoot;
 
   /** Whether focus on the editor after init. */
   @Input({ transform: booleanAttribute }) autoFocus = false;
+
+  /** Whether the editor is disabled.  */
+  @Input({ transform: booleanAttribute }) disabled = false;
+
+  /** Whether the editor is readonly. */
+  @Input({ transform: booleanAttribute })
+  get readonly() {
+    return this._readonly;
+  }
+  set readonly(value: boolean) {
+    this._readonly = value;
+    this.setReadonly(value);
+  }
+  private _readonly = false;
 
   /** Editor's value. */
   @Input()
@@ -79,9 +92,7 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
   }
   set theme(value: Theme) {
     this._theme = value;
-    this._dispatchEffects(
-      this._themeConf.reconfigure(value === 'light' ? [] : value === 'dark' ? oneDark : value)
-    );
+    this.setTheme(value);
   }
   private _theme: Theme = 'light';
 
@@ -92,34 +103,18 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
   }
   set placeholder(value: string) {
     this._placeholder = value;
-    this._dispatchEffects(this._placeholderConf.reconfigure(value ? placeholder(value) : []));
+    this.setPlaceholder(value);
   }
   private _placeholder = '';
 
-  /** Whether the editor is disabled.  */
-  @Input({ transform: booleanAttribute }) disabled = false;
-
-  /** Whether the editor is readonly. */
-  @Input({ transform: booleanAttribute })
-  get readonly() {
-    return this._readonly;
-  }
-  set readonly(value: boolean) {
-    this._readonly = value;
-    this._dispatchEffects(this._readonlyConf.reconfigure(EditorState.readOnly.of(value)));
-  }
-  private _readonly = false;
-
-  /** A binding that binds Tab to indentMore and Shift-Tab to indentLess. */
+  /** Whether indent with Tab key. */
   @Input({ transform: booleanAttribute })
   get indentWithTab() {
     return this._indentWithTab;
   }
   set indentWithTab(value: boolean) {
     this._indentWithTab = value;
-    this._dispatchEffects(
-      this._indentWithTabConf.reconfigure(value ? keymap.of([indentWithTab]) : [])
-    );
+    this.setIndentWithTab(value);
   }
   private _indentWithTab = false;
 
@@ -130,18 +125,18 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
   }
   set indentUnit(value: string) {
     this._indentUnit = value;
-    this._dispatchEffects(this._indentUnitConf.reconfigure(value ? indentUnit.of(value) : []));
+    this.setIndentUnit(value);
   }
   private _indentUnit = '';
 
-  /** Whether this editor wraps lines. */
+  /** Whether the editor wraps lines. */
   @Input({ transform: booleanAttribute })
   get lineWrapping() {
     return this._lineWrapping;
   }
   set lineWrapping(value: boolean) {
     this._lineWrapping = value;
-    this._dispatchEffects(this._lineWrappingConf.reconfigure(value ? EditorView.lineWrapping : []));
+    this.setLineWrapping(value);
   }
   private _lineWrapping = false;
 
@@ -152,15 +147,13 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
   }
   set highlightWhitespace(value: boolean) {
     this._highlightWhitespace = value;
-    this._dispatchEffects(
-      this._highlightWhitespaceConf.reconfigure(value ? highlightWhitespace() : [])
-    );
+    this.setHighlightWhitespace(value);
   }
   private _highlightWhitespace = false;
 
   /**
    * An array of language descriptions for known
-   * [language-data packages](https://github.com/codemirror/language-data/blob/main/src/language-data.ts).
+   * [language-data](https://github.com/codemirror/language-data/blob/main/src/language-data.ts).
    */
   @Input() languages: LanguageDescription[] = [];
 
@@ -186,12 +179,13 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
   }
   set setup(value: Setup) {
     this._setup = value;
-    this.reconfigure();
+    this.setExtensions(this._getAllExtensions());
   }
   private _setup: Setup = 'basic';
 
   /**
-   * EditorState's [extensions](https://codemirror.net/docs/ref/#state.EditorStateConfig.extensions).
+   * It will be appended to the root
+   * [extensions](https://codemirror.net/docs/ref/#state.EditorStateConfig.extensions).
    */
   @Input()
   get extensions() {
@@ -199,7 +193,7 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
   }
   set extensions(value: Extension[]) {
     this._extensions = value;
-    this.reconfigure();
+    this.setExtensions(this._getAllExtensions());
   }
   private _extensions: Extension[] = [];
 
@@ -212,12 +206,15 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
   /** Event emitted when the editor has lost focus. */
   @Output() blur = new EventEmitter<void>();
 
-  view?: EditorView;
-
   private _onChange: (value: string) => void = () => {};
   private _onTouched: () => void = () => {};
 
   constructor(private _elementRef: ElementRef<Element>) {}
+
+  /**
+   * The instance of [EditorView](https://codemirror.net/docs/ref/#view.EditorView).
+   */
+  view?: EditorView;
 
   private _updateListener = EditorView.updateListener.of(vu => {
     if (vu.docChanged && !vu.transactions.some(tr => tr.annotation(External))) {
@@ -229,24 +226,24 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
 
   // Extension compartments can be used to make a configuration dynamic.
   // https://codemirror.net/docs/ref/#state.Compartment
+  private _editableConf = new Compartment();
+  private _readonlyConf = new Compartment();
   private _themeConf = new Compartment();
   private _placeholderConf = new Compartment();
-  private _disabledConf = new Compartment();
-  private _readonlyConf = new Compartment();
   private _indentWithTabConf = new Compartment();
   private _indentUnitConf = new Compartment();
   private _lineWrappingConf = new Compartment();
   private _highlightWhitespaceConf = new Compartment();
   private _languageConf = new Compartment();
 
-  private _getExtensions(): Extension[] {
+  private _getAllExtensions() {
     return [
       this._updateListener,
 
+      this._editableConf.of([]),
+      this._readonlyConf.of([]),
       this._themeConf.of([]),
       this._placeholderConf.of([]),
-      this._disabledConf.of([]),
-      this._readonlyConf.of([]),
       this._indentWithTabConf.of([]),
       this._indentUnitConf.of([]),
       this._lineWrappingConf.of([]),
@@ -259,57 +256,11 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
     ];
   }
 
-  private _dispatchEffects(effects: StateEffect<any> | readonly StateEffect<any>[]) {
-    return this.view?.dispatch({ effects });
-  }
-
-  reconfigure() {
-    this._dispatchEffects(StateEffect.reconfigure.of(this._getExtensions()));
-  }
-
-  setValue(value: string) {
-    this.view?.dispatch({
-      changes: { from: 0, to: this.view.state.doc.length, insert: value },
-    });
-  }
-
-  /** Sets language dynamically. */
-  setLanguage(lang: string, onInit?: boolean) {
-    if (!lang) {
-      return;
-    }
-    if (this.languages.length === 0) {
-      onInit && console.error('No supported languages. Please set the languages prop at first.');
-      return;
-    }
-    const langDesc = this.findLanguage(lang);
-    langDesc?.load().then(lang => {
-      this._dispatchEffects(this._languageConf.reconfigure([lang]));
-    });
-  }
-
-  /** Find the language's extension by its name. Case insensitive. */
-  findLanguage(name: string) {
-    for (const lang of this.languages) {
-      for (const alias of [lang.name, ...lang.alias]) {
-        if (name.toLowerCase() === alias.toLowerCase()) {
-          return lang;
-        }
-      }
-    }
-    console.error('Language not found:', name);
-    console.info('Supported language names:', this.languages.map(lang => lang.name).join(', '));
-    return null;
-  }
-
   ngOnInit(): void {
     this.view = new EditorView({
       root: this.root,
       parent: this._elementRef.nativeElement,
-      state: EditorState.create({
-        doc: this.value,
-        extensions: this._getExtensions(),
-      }),
+      state: EditorState.create({ doc: this.value, extensions: this._getAllExtensions() }),
     });
 
     if (this.autoFocus) {
@@ -326,16 +277,15 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
       this.blur.emit();
     });
 
-    // Force setter to be called after editor initialized.
-    this.theme = this._theme;
-    this.placeholder = this._placeholder;
-    this.readonly = this._readonly;
-    this.indentWithTab = this._indentWithTab;
-    this.indentUnit = this._indentUnit;
-    this.lineWrapping = this._lineWrapping;
-    this.highlightWhitespace = this._highlightWhitespace;
-    this.setDisabledState(this.disabled);
-    this.setLanguage(this.language, true);
+    this.setEditable(!this.disabled);
+    this.setReadonly(this.readonly);
+    this.setTheme(this.theme);
+    this.setPlaceholder(this.placeholder);
+    this.setIndentWithTab(this.indentWithTab);
+    this.setIndentUnit(this.indentUnit);
+    this.setLineWrapping(this.lineWrapping);
+    this.setHighlightWhitespace(this.highlightWhitespace);
+    this.setLanguage(this.language);
   }
 
   ngOnDestroy(): void {
@@ -358,6 +308,99 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean) {
     this.disabled = isDisabled;
-    this._dispatchEffects(this._disabledConf.reconfigure(EditorView.editable.of(!isDisabled)));
+    this.setEditable(!isDisabled);
+  }
+
+  private _dispatchEffects(effects: StateEffect<any> | readonly StateEffect<any>[]) {
+    return this.view?.dispatch({ effects });
+  }
+
+  /** Sets the root extensions of the editor. */
+  setExtensions(value: Extension[]) {
+    this._dispatchEffects(StateEffect.reconfigure.of(value));
+  }
+
+  /** Sets editor's value. */
+  setValue(value: string) {
+    this.view?.dispatch({
+      changes: { from: 0, to: this.view.state.doc.length, insert: value },
+    });
+  }
+
+  /** Sets editor's editable state. */
+  setEditable(value: boolean) {
+    this._dispatchEffects(this._editableConf.reconfigure(EditorView.editable.of(value)));
+  }
+
+  /** Sets editor's readonly state. */
+  setReadonly(value: boolean) {
+    this._dispatchEffects(this._readonlyConf.reconfigure(EditorState.readOnly.of(value)));
+  }
+
+  /** Sets editor's theme. */
+  setTheme(value: Theme) {
+    this._dispatchEffects(
+      this._themeConf.reconfigure(value === 'light' ? [] : value === 'dark' ? oneDark : value)
+    );
+  }
+
+  /** Sets editor's placeholder. */
+  setPlaceholder(value: string) {
+    this._dispatchEffects(this._placeholderConf.reconfigure(value ? placeholder(value) : []));
+  }
+
+  /** Sets editor' indentWithTab. */
+  setIndentWithTab(value: boolean) {
+    this._dispatchEffects(
+      this._indentWithTabConf.reconfigure(value ? keymap.of([indentWithTab]) : [])
+    );
+  }
+
+  /** Sets editor's indentUnit. */
+  setIndentUnit(value: string) {
+    this._dispatchEffects(this._indentUnitConf.reconfigure(value ? indentUnit.of(value) : []));
+  }
+
+  /** Sets editor's lineWrapping. */
+  setLineWrapping(value: boolean) {
+    this._dispatchEffects(this._lineWrappingConf.reconfigure(value ? EditorView.lineWrapping : []));
+  }
+
+  /** Sets editor's highlightWhitespace. */
+  setHighlightWhitespace(value: boolean) {
+    this._dispatchEffects(
+      this._highlightWhitespaceConf.reconfigure(value ? highlightWhitespace() : [])
+    );
+  }
+
+  /** Sets editor's language dynamically. */
+  setLanguage(lang: string) {
+    if (!lang) {
+      return;
+    }
+    if (this.languages.length === 0) {
+      if (this.view) {
+        console.error('No supported languages. Please set the `languages` prop at first.');
+      }
+      return;
+    }
+    const langDesc = this._findLanguage(lang);
+    langDesc?.load().then(lang => {
+      this._dispatchEffects(this._languageConf.reconfigure([lang]));
+    });
+  }
+
+  /** Find the language's extension by its name. Case insensitive. */
+  private _findLanguage(name: string) {
+    for (const lang of this.languages) {
+      for (const alias of [lang.name, ...lang.alias]) {
+        if (name.toLowerCase() === alias.toLowerCase()) {
+          return lang;
+        }
+      }
+    }
+    console.error('Language not found:', name);
+    console.info('Supported language names:', this.languages.map(lang => lang.name).join(', '));
+    return null;
   }
 }
