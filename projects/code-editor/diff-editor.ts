@@ -13,11 +13,12 @@ import {
   booleanAttribute,
 } from '@angular/core';
 
-import { External, Setup } from '@acrodata/code-editor';
 import { DiffConfig, MergeView } from '@codemirror/merge';
 import { Extension } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { basicSetup, minimalSetup } from 'codemirror';
+
+import { External, Setup } from './code-editor';
 
 export type Orientation = 'a-b' | 'b-a';
 export type RevertControls = 'a-to-b' | 'b-to-a';
