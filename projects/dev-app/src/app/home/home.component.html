@@ -1,33 +1,75 @@
 <mat-sidenav-container>
   <mat-sidenav-content>
 
-    <mtx-split>
+    <mtx-split direction="vertical">
       <mtx-split-pane>
-        <code-editor #editor
-                     [style.height]="options.height.value+options.height.unit"
-                     [(ngModel)]="code"
-                     (ngModelChange)="log($event)"
-                     [theme]="options.theme"
-                     [setup]="options.setup"
-                     [disabled]="options.disabled"
-                     [readonly]="options.readonly"
-                     [placeholder]="options.placeholder"
-                     [indentWithTab]="options.indentWithTab"
-                     [indentUnit]="options.indentUnit"
-                     [lineWrapping]="options.lineWrapping"
-                     [highlightWhitespace]="options.highlightWhitespace"
-                     [language]="options.language"
-                     [languages]="languages" />
-      </mtx-split-pane>
 
+        <mtx-split>
+          <mtx-split-pane>
+            <code-editor #editor
+                         [style.height]="options.height.value+options.height.unit"
+                         [(ngModel)]="code"
+                         (ngModelChange)="log($event)"
+                         [theme]="options.theme"
+                         [setup]="options.setup"
+                         [disabled]="options.disabled"
+                         [readonly]="options.readonly"
+                         [placeholder]="options.placeholder"
+                         [indentWithTab]="options.indentWithTab"
+                         [indentUnit]="options.indentUnit"
+                         [lineWrapping]="options.lineWrapping"
+                         [highlightWhitespace]="options.highlightWhitespace"
+                         [language]="options.language"
+                         [languages]="languages" />
+          </mtx-split-pane>
+
+          <mtx-split-pane>
+            <textarea [style.height]="options.height.value+options.height.unit"
+                      [(ngModel)]="code"></textarea>
+          </mtx-split-pane>
+        </mtx-split>
+
+      </mtx-split-pane>
       <mtx-split-pane>
-        <pre>{{code}}</pre>
+
+        <mtx-split>
+          <mtx-split-pane>
+            <code-editor #editor
+                         [style.height]="options.height.value+options.height.unit"
+                         [value]="modifiedCode"
+                         [theme]="options.theme"
+                         [setup]="options.setup"
+                         [readonly]="options.readonly"
+                         [placeholder]="options.placeholder"
+                         [indentWithTab]="options.indentWithTab"
+                         [indentUnit]="options.indentUnit"
+                         [lineWrapping]="options.lineWrapping"
+                         [highlightWhitespace]="options.highlightWhitespace"
+                         [extensions]="unifiedExts" />
+
+          </mtx-split-pane>
+          <mtx-split-pane>
+            <diff-editor #editor
+                         [style.height]="options.height.value+options.height.unit"
+                         [originalValue]="originalCode"
+                         [modifiedValue]="modifiedCode"
+                         [orientation]="options2.orientation"
+                         [revertControls]="options2.revertControls"
+                         [highlightChanges]="options2.highlightChanges"
+                         [gutter]="options2.gutter" />
+
+          </mtx-split-pane>
+        </mtx-split>
+
       </mtx-split-pane>
     </mtx-split>
 
   </mat-sidenav-content>
 
   <mat-sidenav mode="side" position="end" opened>
-    <gui-form [style.width.px]="300" [form]="form" [config]="config" [model]="options" />
+    <h4>Code Editor</h4>
+    <gui-form [config]="config" [model]="options" [form]="form" />
+    <h4>Diff Editor</h4>
+    <gui-form [config]="config2" [model]="options2" />
   </mat-sidenav>
 </mat-sidenav-container>

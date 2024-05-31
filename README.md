@@ -20,6 +20,8 @@ npm install @acrodata/code-editor --save
 
 ## Usage
 
+### Code Editor
+
 ```ts
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -27,12 +29,30 @@ import { CodeEditor } from '@acrodata/code-editor';
 
 @Component({
   selector: 'your-app',
-  template: `<code-editor [(ngModel)]="value" />`,
+  template: `<code-editor [(ngModel)]="code" />`,
   standalone: true,
   imports: [FormsModule, CodeEditor],
 })
 export class YourAppComponent {
-  value = 'console.log("Hello world")';
+  code = `console.log("Hello world")`;
+}
+```
+
+### Diff Editor
+
+```ts
+import { Component } from '@angular/core';
+import { DiffEditor } from '@acrodata/code-editor';
+
+@Component({
+  selector: 'your-app',
+  template: `<diff-editor [(originalValue)]="originalCode" [(modifiedValue)]="modifiedCode" />`,
+  standalone: true,
+  imports: [DiffEditor],
+})
+export class YourAppComponent {
+  originalCode = `bar`;
+  modifiedCode = `foo`;
 }
 ```
 

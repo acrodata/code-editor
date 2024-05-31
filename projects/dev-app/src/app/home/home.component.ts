@@ -4,9 +4,10 @@ import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MtxSplitModule } from '@ng-matero/extensions/split';
 
-import { CodeEditor } from '@acrodata/code-editor';
+import { CodeEditor, DiffEditor } from '@acrodata/code-editor';
 import { GuiFields, GuiForm } from '@acrodata/gui';
 import { languages } from '@codemirror/language-data';
+import { unifiedMergeView } from '@codemirror/merge';
 
 @Component({
   selector: 'app-home',
@@ -17,6 +18,7 @@ import { languages } from '@codemirror/language-data';
     MatSidenavModule,
     MtxSplitModule,
     CodeEditor,
+    DiffEditor,
     GuiForm,
   ],
   templateUrl: './home.component.html',
@@ -120,10 +122,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   code = '';
 
-  log(e: any) {
-    console.log(e);
-  }
-
   ngOnInit(): void {
     this.getLangSample('javascript');
   }
@@ -147,4 +145,56 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  log(e: any) {
+    console.log(e);
+  }
+
+  originalCode = `one
+two
+three
+four
+five`;
+  modifiedCode = this.originalCode.replace(/t/g, 'T') + '\nSix';
+
+  unifiedExts = [
+    unifiedMergeView({
+      original: this.originalCode,
+    }),
+  ];
+
+  config2: GuiFields = {
+    orientation: {
+      type: 'buttonToggle',
+      name: 'Orientation',
+      options: [
+        { label: 'a-b', value: 'a-b' },
+        { label: 'b-a', value: 'b-a' },
+      ],
+    },
+    revertControls: {
+      type: 'buttonToggle',
+      name: 'Revert controls',
+      options: [
+        { label: 'a-to-b', value: 'a-to-b' },
+        { label: 'b-to-a', value: 'b-to-a' },
+        { label: 'none', value: '' },
+      ],
+    },
+    highlightChanges: {
+      type: 'switch',
+      name: 'Highlight changes',
+    },
+    gutter: {
+      type: 'switch',
+      name: 'Gutter',
+    },
+  };
+
+  options2: any = {
+    orientation: 'a-b',
+    revertControls: '',
+    highlightChanges: true,
+    gutter: true,
+  };
 }
