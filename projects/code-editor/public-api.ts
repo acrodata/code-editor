@@ -4,3 +4,4 @@
 
 export * from './code-editor-module';
 export * from './code-editor';
+export * from './diff-editor';

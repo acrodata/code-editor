@@ -1,0 +1,15 @@
+<diff-editor #editor [style.height.px]="200"
+             [originalValue]="doc" [modifiedValue]="doc2"
+             (originalValueChange)="log($event)"
+             (modifiedValueChange)="log($event)"
+             [orientation]="orientation" [revertControls]="revertControls"
+             [highlightChanges]="highlightChanges" [gutter]="gutter" />
+
+<button (click)="doc='123'">change original value</button>
+<button (click)="doc2='13\n456'">change modified value</button>
+<button (click)="orientation==='a-b'?orientation='b-a':orientation='a-b'">orientation</button>
+<button (click)="revertControls==='a-to-b'?revertControls='b-to-a':revertControls='a-to-b'">revertControls</button>
+<button (click)="highlightChanges=!highlightChanges">highlightChanges</button>
+<button (click)="gutter=!gutter">gutter</button>
+
+<code-editor [value]="doc2" [extensions]="unifiedExts" />

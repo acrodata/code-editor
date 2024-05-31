@@ -23,7 +23,7 @@ import { basicSetup, minimalSetup } from 'codemirror';
 export type Theme = 'light' | 'dark' | Extension;
 export type Setup = 'basic' | 'minimal' | null;
 
-const External = Annotation.define<boolean>();
+export const External = Annotation.define<boolean>();
 
 @Component({
   selector: 'code-editor',
@@ -54,10 +54,16 @@ const External = Annotation.define<boolean>();
 export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
   /**
    * EditorView's [root](https://codemirror.net/docs/ref/#view.EditorView.root).
+   *
+   * Don't support change dynamically!
    */
   @Input() root?: Document | ShadowRoot;
 
-  /** Whether focus on the editor after init. */
+  /**
+   * Whether focus on the editor after init.
+   *
+   * Don't support change dynamically!
+   */
   @Input({ transform: booleanAttribute }) autoFocus = false;
 
   /** Whether the editor is disabled.  */
@@ -154,6 +160,8 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
   /**
    * An array of language descriptions for known
    * [language-data](https://github.com/codemirror/language-data/blob/main/src/language-data.ts).
+   *
+   * Don't support change dynamically!
    */
   @Input() languages: LanguageDescription[] = [];
 
