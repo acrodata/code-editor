@@ -4,9 +4,11 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
   ViewEncapsulation,
   booleanAttribute,
   forwardRef,
@@ -51,7 +53,7 @@ export const External = Annotation.define<boolean>();
     },
   ],
 })
-export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
+export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAccessor {
   /**
    * EditorView's [root](https://codemirror.net/docs/ref/#view.EditorView.root).
    *
@@ -66,96 +68,32 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
    */
   @Input({ transform: booleanAttribute }) autoFocus = false;
 
+  /** The editor's value. */
+  @Input() value = '';
+
   /** Whether the editor is disabled.  */
   @Input({ transform: booleanAttribute }) disabled = false;
 
   /** Whether the editor is readonly. */
-  @Input({ transform: booleanAttribute })
-  get readonly() {
-    return this._readonly;
-  }
-  set readonly(value: boolean) {
-    this._readonly = value;
-    this.setReadonly(value);
-  }
-  private _readonly = false;
+  @Input({ transform: booleanAttribute }) readonly = false;
 
-  /** Editor's value. */
-  @Input()
-  get value() {
-    return this._value;
-  }
-  set value(newValue: string) {
-    this._value = newValue;
-    this.setValue(newValue);
-  }
-  private _value = '';
+  /** The editor's theme. */
+  @Input() theme: Theme = 'light';
 
-  /** Editor's theme. */
-  @Input()
-  get theme() {
-    return this._theme;
-  }
-  set theme(value: Theme) {
-    this._theme = value;
-    this.setTheme(value);
-  }
-  private _theme: Theme = 'light';
-
-  /** Editor's placecholder. */
-  @Input()
-  get placeholder() {
-    return this._placeholder;
-  }
-  set placeholder(value: string) {
-    this._placeholder = value;
-    this.setPlaceholder(value);
-  }
-  private _placeholder = '';
+  /** The editor's placecholder. */
+  @Input() placeholder = '';
 
   /** Whether indent with Tab key. */
-  @Input({ transform: booleanAttribute })
-  get indentWithTab() {
-    return this._indentWithTab;
-  }
-  set indentWithTab(value: boolean) {
-    this._indentWithTab = value;
-    this.setIndentWithTab(value);
-  }
-  private _indentWithTab = false;
+  @Input({ transform: booleanAttribute }) indentWithTab = false;
 
   /** Should be a string consisting either entirely of the same whitespace character. */
-  @Input()
-  get indentUnit() {
-    return this._indentUnit;
-  }
-  set indentUnit(value: string) {
-    this._indentUnit = value;
-    this.setIndentUnit(value);
-  }
-  private _indentUnit = '';
+  @Input() indentUnit = '';
 
   /** Whether the editor wraps lines. */
-  @Input({ transform: booleanAttribute })
-  get lineWrapping() {
-    return this._lineWrapping;
-  }
-  set lineWrapping(value: boolean) {
-    this._lineWrapping = value;
-    this.setLineWrapping(value);
-  }
-  private _lineWrapping = false;
+  @Input({ transform: booleanAttribute }) lineWrapping = false;
 
   /** Whether highlight the whitespace. */
-  @Input({ transform: booleanAttribute })
-  get highlightWhitespace() {
-    return this._highlightWhitespace;
-  }
-  set highlightWhitespace(value: boolean) {
-    this._highlightWhitespace = value;
-    this.setHighlightWhitespace(value);
-  }
-  private _highlightWhitespace = false;
+  @Input({ transform: booleanAttribute }) highlightWhitespace = false;
 
   /**
    * An array of language descriptions for known
@@ -165,45 +103,21 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
    */
   @Input() languages: LanguageDescription[] = [];
 
-  /** Editor's language. You should set the `languages` prop at first. */
-  @Input()
-  get language() {
-    return this._language;
-  }
-  set language(value: string) {
-    this._language = value;
-    this.setLanguage(value);
-  }
-  private _language = '';
+  /** The editor's language. You should set the `languages` prop at first. */
+  @Input() language = '';
 
   /**
    * The editor's built-in setup. The value can be set to
    * [`basic`](https://codemirror.net/docs/ref/#codemirror.basicSetup),
    * [`minimal`](https://codemirror.net/docs/ref/#codemirror.minimalSetup) or `null`.
    */
-  @Input()
-  get setup() {
-    return this._setup;
-  }
-  set setup(value: Setup) {
-    this._setup = value;
-    this.setExtensions(this._getAllExtensions());
-  }
-  private _setup: Setup = 'basic';
+  @Input() setup: Setup = 'basic';
 
   /**
    * It will be appended to the root
    * [extensions](https://codemirror.net/docs/ref/#state.EditorStateConfig.extensions).
    */
-  @Input()
-  get extensions() {
-    return this._extensions;
-  }
-  set extensions(value: Extension[]) {
-    this._extensions = value;
-    this.setExtensions(this._getAllExtensions());
-  }
-  private _extensions: Extension[] = [];
+  @Input() extensions: Extension[] = [];
 
   /** Event emitted when the editor's value changes. */
   @Output() change = new EventEmitter<string>();
@@ -264,6 +178,39 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
     ];
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['value']) {
+      this.setValue(this.value);
+    }
+    if (changes['readonly']) {
+      this.setReadonly(this.readonly);
+    }
+    if (changes['theme']) {
+      this.setTheme(this.theme);
+    }
+    if (changes['placeholder']) {
+      this.setPlaceholder(this.placeholder);
+    }
+    if (changes['indentWithTab']) {
+      this.setIndentWithTab(this.indentWithTab);
+    }
+    if (changes['indentUnit']) {
+      this.setIndentUnit(this.indentUnit);
+    }
+    if (changes['lineWrapping']) {
+      this.setLineWrapping(this.lineWrapping);
+    }
+    if (changes['highlightWhitespace']) {
+      this.setHighlightWhitespace(this.highlightWhitespace);
+    }
+    if (changes['language']) {
+      this.setLanguage(this.language);
+    }
+    if (changes['setup'] || changes['extensions']) {
+      this.setExtensions(this._getAllExtensions());
+    }
+  }
+
   ngOnInit(): void {
     this.view = new EditorView({
       root: this.root,
@@ -319,6 +266,13 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
     this.setEditable(!isDisabled);
   }
 
+  /** Sets editor's value. */
+  setValue(value: string) {
+    this.view?.dispatch({
+      changes: { from: 0, to: this.view.state.doc.length, insert: value },
+    });
+  }
+
   private _dispatchEffects(effects: StateEffect<any> | readonly StateEffect<any>[]) {
     return this.view?.dispatch({ effects });
   }
@@ -326,13 +280,6 @@ export class CodeEditor implements OnInit, OnDestroy, ControlValueAccessor {
   /** Sets the root extensions of the editor. */
   setExtensions(value: Extension[]) {
     this._dispatchEffects(StateEffect.reconfigure.of(value));
-  }
-
-  /** Sets editor's value. */
-  setValue(value: string) {
-    this.view?.dispatch({
-      changes: { from: 0, to: this.view.state.doc.length, insert: value },
-    });
   }
 
   /** Sets editor's editable state. */
