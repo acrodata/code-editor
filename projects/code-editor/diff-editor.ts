@@ -11,10 +11,12 @@ import {
   SimpleChanges,
   ViewEncapsulation,
   booleanAttribute,
+  forwardRef,
 } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { DiffConfig, MergeView } from '@codemirror/merge';
-import { Extension } from '@codemirror/state';
+import { Compartment, Extension } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { basicSetup, minimalSetup } from 'codemirror';
 
@@ -23,6 +25,11 @@ import { External, Setup } from './code-editor';
 export type Orientation = 'a-b' | 'b-a';
 export type RevertControls = 'a-to-b' | 'b-to-a';
 export type RenderRevertControl = () => HTMLElement;
+
+export interface DiffEditorModel {
+  original: string;
+  modified: string;
+}
 
 @Component({
   selector: 'diff-editor',
@@ -48,8 +55,15 @@ export type RenderRevertControl = () => HTMLElement;
   },
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => DiffEditor),
+      multi: true,
+    },
+  ],
 })
-export class DiffEditor implements OnChanges, OnInit, OnDestroy {
+export class DiffEditor implements OnChanges, OnInit, OnDestroy, ControlValueAccessor {
   /**
    * The editor's built-in setup. The value can be set to
    * [`basic`](https://codemirror.net/docs/ref/#codemirror.basicSetup),
@@ -60,7 +74,7 @@ export class DiffEditor implements OnChanges, OnInit, OnDestroy {
   @Input() setup: Setup = 'basic';
 
   /** The diff-editor's original value. */
-  @Input() originalValue = '';
+  @Input() originalValue: string = '';
 
   /**
    * The MergeView original config's
@@ -71,7 +85,7 @@ export class DiffEditor implements OnChanges, OnInit, OnDestroy {
   @Input() originalExtensions: Extension[] = [];
 
   /** The diff-editor's modified value. */
-  @Input() modifiedValue = '';
+  @Input() modifiedValue: string = '';
 
   /**
    * The MergeView modified config's
@@ -99,6 +113,9 @@ export class DiffEditor implements OnChanges, OnInit, OnDestroy {
   /** Controls whether a gutter marker is shown next to changed lines. */
   @Input({ transform: booleanAttribute }) gutter = true;
 
+  /** Whether the diff-editor is disabled. */
+  @Input({ transform: booleanAttribute }) disabled = false;
+
   /**
    * When given, long stretches of unchanged text are collapsed.
    * `margin` gives the number of lines to leave visible after/before
@@ -116,26 +133,39 @@ export class DiffEditor implements OnChanges, OnInit, OnDestroy {
   /** Event emitted when the editor's modified value changes. */
   @Output() modifiedValueChange = new EventEmitter<string>();
 
+  private _onChange: (value: DiffEditorModel) => void = () => {};
+  private _onTouched: () => void = () => {};
+
   constructor(private _elementRef: ElementRef<Element>) {}
 
   /** The merge view instance. */
   mergeView?: MergeView;
 
-  private _updateListener = (valueChange: EventEmitter<string>) => {
+  private _updateListener = (editor: 'a' | 'b') => {
     return EditorView.updateListener.of(vu => {
       if (vu.docChanged && !vu.transactions.some(tr => tr.annotation(External))) {
         const value = vu.state.doc.toString();
-        valueChange.emit(value);
+        if (editor == 'a') {
+          this._onChange({ original: value, modified: this.modifiedValue });
+          this.originalValue = value;
+          this.originalValueChange.emit(value);
+        } else if (editor == 'b') {
+          this._onChange({ original: this.originalValue, modified: value });
+          this.modifiedValue = value;
+          this.modifiedValueChange.emit(value);
+        }
       }
     });
   };
 
+  private _editableConf = new Compartment();
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['originalValue']) {
-      this.setOriginalValue(this.originalValue);
+      this.setValue('a', this.originalValue);
     }
     if (changes['modifiedValue']) {
-      this.setModifiedValue(this.modifiedValue);
+      this.setValue('b', this.modifiedValue);
     }
     if (changes['orientation']) {
       this.mergeView?.reconfigure({ orientation: this.orientation });
@@ -166,7 +196,8 @@ export class DiffEditor implements OnChanges, OnInit, OnDestroy {
       a: {
         doc: this.originalValue,
         extensions: [
-          this._updateListener(this.originalValueChange),
+          this._updateListener('a'),
+          this._editableConf.of([]),
           this.setup === 'basic' ? basicSetup : this.setup === 'minimal' ? minimalSetup : [],
           ...this.originalExtensions,
         ],
@@ -174,7 +205,8 @@ export class DiffEditor implements OnChanges, OnInit, OnDestroy {
       b: {
         doc: this.modifiedValue,
         extensions: [
-          this._updateListener(this.modifiedValueChange),
+          this._updateListener('b'),
+          this._editableConf.of([]),
           this.setup === 'basic' ? basicSetup : this.setup === 'minimal' ? minimalSetup : [],
           ...this.modifiedExtensions,
         ],
@@ -187,23 +219,49 @@ export class DiffEditor implements OnChanges, OnInit, OnDestroy {
       collapseUnchanged: this.collapseUnchanged,
       diffConfig: this.diffConfig,
     });
+
+    this.setEditable('a', !this.disabled);
+    this.setEditable('b', !this.disabled);
   }
 
   ngOnDestroy(): void {
     this.mergeView?.destroy();
   }
 
-  /** Sets diff-editor's original value. */
-  setOriginalValue(value: string) {
-    this.mergeView?.a.dispatch({
-      changes: { from: 0, to: this.mergeView.a.state.doc.length, insert: value },
+  writeValue(value: DiffEditorModel): void {
+    if (this.mergeView && value != null && typeof value === 'object') {
+      this.originalValue = value.original;
+      this.modifiedValue = value.modified;
+      this.setValue('a', value.original);
+      this.setValue('b', value.modified);
+    }
+  }
+
+  registerOnChange(fn: (value: DiffEditorModel) => void) {
+    this._onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void) {
+    this._onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean) {
+    this.disabled = isDisabled;
+    this.setEditable('a', !isDisabled);
+    this.setEditable('b', !isDisabled);
+  }
+
+  /** Sets diff-editor's value. */
+  setValue(editor: 'a' | 'b', value: string) {
+    this.mergeView?.[editor].dispatch({
+      changes: { from: 0, to: this.mergeView[editor].state.doc.length, insert: value },
     });
   }
 
-  /** Sets diff-editor's modified value. */
-  setModifiedValue(value: string) {
-    this.mergeView?.b.dispatch({
-      changes: { from: 0, to: this.mergeView.b.state.doc.length, insert: value },
+  /** Sets diff-editor's editable state. */
+  setEditable(editor: 'a' | 'b', value: boolean) {
+    this.mergeView?.[editor].dispatch({
+      effects: this._editableConf.reconfigure(EditorView.editable.of(value)),
     });
   }
 }

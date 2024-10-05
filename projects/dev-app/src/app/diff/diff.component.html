@@ -1,9 +1,10 @@
 <diff-editor #editor [style.height.px]="200"
-             [originalValue]="doc" [modifiedValue]="doc2"
+             [(ngModel)]="value"
              (originalValueChange)="log($event)"
              (modifiedValueChange)="log($event)"
              [orientation]="orientation" [revertControls]="revertControls"
-             [highlightChanges]="highlightChanges" [gutter]="gutter" />
+             [highlightChanges]="highlightChanges" [gutter]="gutter"
+             [disabled]="disabled" />
 
 <button (click)="doc='123'">change original value</button>
 <button (click)="doc2='13\n456'">change modified value</button>
@@ -11,5 +12,6 @@
 <button (click)="revertControls==='a-to-b'?revertControls='b-to-a':revertControls='a-to-b'">revertControls</button>
 <button (click)="highlightChanges=!highlightChanges">highlightChanges</button>
 <button (click)="gutter=!gutter">gutter</button>
+<button (click)="disabled=!disabled">disabled</button>
 
 <code-editor [value]="doc2" [extensions]="unifiedExts" />
