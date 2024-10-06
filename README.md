@@ -29,12 +29,12 @@ import { CodeEditor } from '@acrodata/code-editor';
 
 @Component({
   selector: 'your-app',
-  template: `<code-editor [(ngModel)]="code" />`,
+  template: `<code-editor [(ngModel)]="value" />`,
   standalone: true,
   imports: [FormsModule, CodeEditor],
 })
 export class YourAppComponent {
-  code = `console.log("Hello world")`;
+  value = `console.log("Hello world")`;
 }
 ```
 
@@ -46,13 +46,15 @@ import { DiffEditor } from '@acrodata/code-editor';
 
 @Component({
   selector: 'your-app',
-  template: `<diff-editor [(originalValue)]="originalCode" [(modifiedValue)]="modifiedCode" />`,
+  template: `<diff-editor [(ngModel)]="value" />`,
   standalone: true,
-  imports: [DiffEditor],
+  imports: [FormsModule, DiffEditor],
 })
 export class YourAppComponent {
-  originalCode = `bar`;
-  modifiedCode = `foo`;
+  value = {
+    original: `bar`;
+    modified: `foo`;
+  }
 }
 ```
 
