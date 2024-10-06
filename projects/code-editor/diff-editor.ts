@@ -130,8 +130,20 @@ export class DiffEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   /** Event emitted when the editor's original value changes. */
   @Output() originalValueChange = new EventEmitter<string>();
 
+  /** Event emitted when focus on the original editor. */
+  @Output() originalFocus = new EventEmitter<void>();
+
+  /** Event emitted when blur on the original editor. */
+  @Output() originalBlur = new EventEmitter<void>();
+
   /** Event emitted when the editor's modified value changes. */
   @Output() modifiedValueChange = new EventEmitter<string>();
+
+  /** Event emitted when focus on the modified editor. */
+  @Output() modifiedFocus = new EventEmitter<void>();
+
+  /** Event emitted when blur on the modified editor. */
+  @Output() modifiedBlur = new EventEmitter<void>();
 
   private _onChange: (value: DiffEditorModel) => void = () => {};
   private _onTouched: () => void = () => {};
@@ -222,6 +234,26 @@ export class DiffEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
       gutter: this.gutter,
       collapseUnchanged: this.collapseUnchanged,
       diffConfig: this.diffConfig,
+    });
+
+    this.mergeView?.a.contentDOM.addEventListener('focus', () => {
+      this._onTouched();
+      this.originalFocus.emit();
+    });
+
+    this.mergeView?.a.contentDOM.addEventListener('blur', () => {
+      this._onTouched();
+      this.originalBlur.emit();
+    });
+
+    this.mergeView?.b.contentDOM.addEventListener('focus', () => {
+      this._onTouched();
+      this.modifiedFocus.emit();
+    });
+
+    this.mergeView?.b.contentDOM.addEventListener('blur', () => {
+      this._onTouched();
+      this.modifiedBlur.emit();
     });
 
     this.setEditable('a', !this.disabled);
