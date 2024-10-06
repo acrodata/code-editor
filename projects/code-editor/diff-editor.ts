@@ -188,6 +188,10 @@ export class DiffEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     if (changes['diffConfig']) {
       this.mergeView?.reconfigure({ diffConfig: this.diffConfig });
     }
+    if (changes['disabled']) {
+      this.setEditable('a', !this.disabled);
+      this.setEditable('b', !this.disabled);
+    }
   }
 
   ngOnInit(): void {

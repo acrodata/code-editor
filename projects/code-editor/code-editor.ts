@@ -182,6 +182,9 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     if (changes['value']) {
       this.setValue(this.value);
     }
+    if (changes['disabled']) {
+      this.setEditable(!this.disabled);
+    }
     if (changes['readonly']) {
       this.setReadonly(this.readonly);
     }
