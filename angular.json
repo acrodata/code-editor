@@ -120,6 +120,15 @@
             ],
             "scripts": []
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/dev-app/src/**/*.ts",
+              "projects/dev-app/src/**/*.html"
+            ]
+          }
         }
       }
     }
