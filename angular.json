@@ -129,6 +129,13 @@
               "projects/dev-app/src/**/*.html"
             ]
           }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy",
+          "options": {
+            "baseHref": "/code-editor/",
+            "remote": "origin"
+          }
         }
       }
     }

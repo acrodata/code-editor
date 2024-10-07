@@ -18,7 +18,7 @@
     "postbuild:lib": "cp README.md dist/code-editor",
     "publish": "npm run build:lib && cd dist/code-editor && npm publish",
     "predeploy": "npm run build",
-    "deploy": "angular-cli-ghpages --no-silent --dir=dist/dev-app/browser",
+    "deploy": "ng deploy dev-app",
     "prepare": "husky install"
   },
   "private": true,
