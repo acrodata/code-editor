@@ -13,11 +13,9 @@
     "test": "ng test dev-app",
     "lint": "ng lint --fix && npm run lint:scss",
     "lint:scss": "stylelint \"**/*.scss\" --fix",
-    "build:lib": "ng build code-editor",
-    "postbuild:lib": "cp README.md dist/code-editor",
+    "build:lib": "ng build code-editor && cp README.md dist/code-editor",
     "publish": "npm run build:lib && cd dist/code-editor && npm publish",
-    "predeploy": "npm run build",
-    "deploy": "ng deploy dev-app",
+    "deploy": "npm run build && ng deploy",
     "prepare": "husky install"
   },
   "private": true,

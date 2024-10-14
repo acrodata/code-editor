@@ -25,10 +25,7 @@
     ],
     "paths": {
       "@acrodata/code-editor": [
-        "projects/code-editor"
-      ],
-      "@acrodata/code-editor/*": [
-        "projects/code-editor/*"
+        "projects/code-editor/public-api"
       ],
     }
   },
