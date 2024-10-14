@@ -33,11 +33,26 @@
               "zone.js/testing"
             ]
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/code-editor/**/*.ts",
+              "projects/code-editor/**/*.html"
+            ],
+            "eslintConfig": "projects/code-editor/eslint.config.js"
+          }
         }
       }
     },
     "dev-app": {
       "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "projects/dev-app",
       "sourceRoot": "projects/dev-app/src",
       "prefix": "app",
@@ -125,9 +140,10 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "lintFilePatterns": [
-              "projects/dev-app/src/**/*.ts",
-              "projects/dev-app/src/**/*.html"
-            ]
+              "projects/dev-app/**/*.ts",
+              "projects/dev-app/**/*.html"
+            ],
+            "eslintConfig": "projects/dev-app/eslint.config.js"
           }
         },
         "deploy": {
@@ -138,12 +154,6 @@
           }
         }
       }
-    }
-  },
-  "schematics": {
-    "@schematics/angular:component": {
-      "style": "scss",
-      "skipTests": true
     }
   },
   "cli": {
