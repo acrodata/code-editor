@@ -1,8 +1,7 @@
 import { AfterViewInit, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MtxSplitModule } from '@ng-matero/extensions/split';
+import { MatButtonModule } from '@angular/material/button';
 
 import { CodeEditor, DiffEditor } from '@acrodata/code-editor';
 import { GuiFields, GuiForm } from '@acrodata/gui';
@@ -12,15 +11,7 @@ import { unifiedMergeView } from '@codemirror/merge';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    MatSidenavModule,
-    MtxSplitModule,
-    CodeEditor,
-    DiffEditor,
-    GuiForm,
-  ],
+  imports: [FormsModule, ReactiveFormsModule, CodeEditor, DiffEditor, GuiForm, MatButtonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
@@ -84,26 +75,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       type: 'switch',
       name: 'Highlight whitespace',
     },
-    height: {
-      type: 'inline',
-      name: 'Height',
-      children: {
-        value: {
-          type: 'number',
-          name: '',
-          col: 70,
-        },
-        unit: {
-          type: 'select',
-          name: '',
-          options: [
-            { label: 'px', value: 'px' },
-            { label: '%', value: '%' },
-          ],
-          col: 30,
-        },
-      },
-    },
   };
 
   options: any = {
@@ -117,10 +88,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     indentUnit: '',
     lineWrapping: false,
     highlightWhitespace: false,
-    height: { value: 100, unit: '%' },
   };
 
   code = '';
+
+  showOutput = false;
 
   ngOnInit(): void {
     this.getLangSample('javascript');

@@ -1,75 +1,70 @@
-<mat-sidenav-container>
-  <mat-sidenav-content>
+<section>
+  <aside>
+    <div class="config-panel">
+      <h4>Code Editor Config</h4>
+      <gui-form [config]="config" [model]="options" [form]="form" />
+    </div>
+  </aside>
 
-    <mtx-split direction="vertical">
-      <mtx-split-pane>
+  <div>
+    <h4>
+      <button mat-button (click)="showOutput=!showOutput">Toggle output</button>
+    </h4>
+    <div class="editor-wrap">
+      <code-editor #editor
+                   [style.height]="'500px'"
+                   [(ngModel)]="code"
+                   (ngModelChange)="log($event)"
+                   [theme]="options.theme"
+                   [setup]="options.setup"
+                   [disabled]="options.disabled"
+                   [readonly]="options.readonly"
+                   [placeholder]="options.placeholder"
+                   [indentWithTab]="options.indentWithTab"
+                   [indentUnit]="options.indentUnit"
+                   [lineWrapping]="options.lineWrapping"
+                   [highlightWhitespace]="options.highlightWhitespace"
+                   [language]="options.language"
+                   [languages]="languages" />
 
-        <mtx-split>
-          <mtx-split-pane>
-            <code-editor #editor
-                         [style.height]="options.height.value+options.height.unit"
-                         [(ngModel)]="code"
-                         (ngModelChange)="log($event)"
-                         [theme]="options.theme"
-                         [setup]="options.setup"
-                         [disabled]="options.disabled"
-                         [readonly]="options.readonly"
-                         [placeholder]="options.placeholder"
-                         [indentWithTab]="options.indentWithTab"
-                         [indentUnit]="options.indentUnit"
-                         [lineWrapping]="options.lineWrapping"
-                         [highlightWhitespace]="options.highlightWhitespace"
-                         [language]="options.language"
-                         [languages]="languages" />
-          </mtx-split-pane>
+      @if (showOutput) {
+      <textarea [style.height]="'500px'" [(ngModel)]="code"></textarea>
+      }
+    </div>
 
-          <mtx-split-pane>
-            <textarea [style.height]="options.height.value+options.height.unit"
-                      [(ngModel)]="code"></textarea>
-          </mtx-split-pane>
-        </mtx-split>
+    <h4>Unified diff-editor</h4>
+    <code-editor #editor
+                 [style.height]="'500px'"
+                 [value]="modifiedCode"
+                 [theme]="options.theme"
+                 [setup]="options.setup"
+                 [readonly]="options.readonly"
+                 [placeholder]="options.placeholder"
+                 [indentWithTab]="options.indentWithTab"
+                 [indentUnit]="options.indentUnit"
+                 [lineWrapping]="options.lineWrapping"
+                 [highlightWhitespace]="options.highlightWhitespace"
+                 [extensions]="unifiedExts" />
+  </div>
+</section>
 
-      </mtx-split-pane>
-      <mtx-split-pane>
+<section>
+  <aside>
+    <div class="config-panel">
+      <h4>Diff Editor Config</h4>
+      <gui-form [config]="config2" [model]="options2" />
+    </div>
+  </aside>
 
-        <mtx-split>
-          <mtx-split-pane>
-            <code-editor #editor
-                         [style.height]="options.height.value+options.height.unit"
-                         [value]="modifiedCode"
-                         [theme]="options.theme"
-                         [setup]="options.setup"
-                         [readonly]="options.readonly"
-                         [placeholder]="options.placeholder"
-                         [indentWithTab]="options.indentWithTab"
-                         [indentUnit]="options.indentUnit"
-                         [lineWrapping]="options.lineWrapping"
-                         [highlightWhitespace]="options.highlightWhitespace"
-                         [extensions]="unifiedExts" />
-
-          </mtx-split-pane>
-          <mtx-split-pane>
-            <diff-editor #editor
-                         [style.height]="options.height.value+options.height.unit"
-                         [originalValue]="originalCode"
-                         [modifiedValue]="modifiedCode"
-                         [orientation]="options2.orientation"
-                         [revertControls]="options2.revertControls"
-                         [highlightChanges]="options2.highlightChanges"
-                         [gutter]="options2.gutter" />
-
-          </mtx-split-pane>
-        </mtx-split>
-
-      </mtx-split-pane>
-    </mtx-split>
-
-  </mat-sidenav-content>
-
-  <mat-sidenav mode="side" position="end" opened>
-    <h4>Code Editor</h4>
-    <gui-form [config]="config" [model]="options" [form]="form" />
-    <h4>Diff Editor</h4>
-    <gui-form [config]="config2" [model]="options2" />
-  </mat-sidenav>
-</mat-sidenav-container>
+  <div>
+    <h4>Split diff-editor</h4>
+    <diff-editor #editor
+                 [style.height]="'100vh'"
+                 [originalValue]="originalCode"
+                 [modifiedValue]="modifiedCode"
+                 [orientation]="options2.orientation"
+                 [revertControls]="options2.revertControls"
+                 [highlightChanges]="options2.highlightChanges"
+                 [gutter]="options2.gutter" />
+  </div>
+</section>
