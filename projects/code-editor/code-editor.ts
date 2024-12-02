@@ -333,7 +333,8 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
 
   /** Sets editor's language dynamically. */
   setLanguage(lang: string) {
-    if (!lang) {
+    if (!lang || lang == 'plaintext') {
+      this._dispatchEffects(this._languageConf.reconfigure([]));
       return;
     }
     if (this.languages.length === 0) {
