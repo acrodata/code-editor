@@ -1,5 +1,4 @@
 import { CodeEditor, DiffEditor, Orientation, RevertControls, Setup } from '@acrodata/code-editor';
-import { JsonPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { unifiedMergeView } from '@codemirror/merge';
@@ -7,7 +6,7 @@ import { unifiedMergeView } from '@codemirror/merge';
 @Component({
   selector: 'app-diff',
   standalone: true,
-  imports: [DiffEditor, CodeEditor, FormsModule, ReactiveFormsModule, JsonPipe],
+  imports: [DiffEditor, CodeEditor, FormsModule, ReactiveFormsModule],
   templateUrl: './diff.component.html',
   styleUrl: './diff.component.scss',
 })

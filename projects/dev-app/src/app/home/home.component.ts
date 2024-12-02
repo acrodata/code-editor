@@ -28,6 +28,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       name: 'Language',
       options: languages
         .map(lang => ({ label: lang.name, value: lang.name.toLowerCase() }))
+        .concat([{ label: 'Plain Text', value: 'plaintext' }])
         .sort((a, b) => a.label.localeCompare(b.label)),
     },
     theme: {
