@@ -24,11 +24,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   config: GuiFields = {
     language: {
-      type: 'select',
+      type: 'combobox',
       name: 'Language',
       options: languages
         .map(lang => ({ label: lang.name, value: lang.name.toLowerCase() }))
-        .concat([{ label: 'Plain Text', value: 'plaintext' }])
         .sort((a, b) => a.label.localeCompare(b.label)),
     },
     theme: {
