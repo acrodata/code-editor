@@ -136,7 +136,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   /**
    * The instance of [EditorView](https://codemirror.net/docs/ref/#view.EditorView).
    */
-  view?: EditorView;
+  view!: EditorView;
 
   private _updateListener = EditorView.updateListener.of(vu => {
     if (vu.docChanged && !vu.transactions.some(tr => tr.annotation(External))) {
@@ -179,6 +179,8 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (!this.view) return;
+
     if (changes['value']) {
       this.setValue(this.value);
     }
@@ -222,15 +224,15 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     });
 
     if (this.autoFocus) {
-      this.view?.focus();
+      this.view.focus();
     }
 
-    this.view?.contentDOM.addEventListener('focus', () => {
+    this.view.contentDOM.addEventListener('focus', () => {
       this._onTouched();
       this.focus.emit();
     });
 
-    this.view?.contentDOM.addEventListener('blur', () => {
+    this.view.contentDOM.addEventListener('blur', () => {
       this._onTouched();
       this.blur.emit();
     });
@@ -247,10 +249,10 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   }
 
   ngOnDestroy(): void {
-    this.view?.destroy();
+    this.view.destroy();
   }
 
-  writeValue(value: string): void {
+  writeValue(value: any): void {
     if (this.view) {
       this.setValue(value);
     }
@@ -271,13 +273,13 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
 
   /** Sets editor's value. */
   setValue(value: string) {
-    this.view?.dispatch({
+    this.view.dispatch({
       changes: { from: 0, to: this.view.state.doc.length, insert: value },
     });
   }
 
   private _dispatchEffects(effects: StateEffect<any> | readonly StateEffect<any>[]) {
-    return this.view?.dispatch({ effects });
+    return this.view.dispatch({ effects });
   }
 
   /** Sets the root extensions of the editor. */
