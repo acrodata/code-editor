@@ -17,7 +17,14 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { indentWithTab } from '@codemirror/commands';
 import { LanguageDescription, indentUnit } from '@codemirror/language';
-import { Annotation, Compartment, EditorState, Extension, StateEffect } from '@codemirror/state';
+import {
+  Annotation,
+  Compartment,
+  EditorState,
+  Extension,
+  StateEffect,
+  Transaction,
+} from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { EditorView, highlightWhitespace, keymap, placeholder } from '@codemirror/view';
 import { basicSetup, minimalSetup } from 'codemirror';
@@ -275,6 +282,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   setValue(value: string) {
     this.view.dispatch({
       changes: { from: 0, to: this.view.state.doc.length, insert: value },
+      annotations: Transaction.addToHistory.of(false),
     });
   }
 
