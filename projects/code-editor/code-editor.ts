@@ -145,6 +145,11 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
    */
   view!: EditorView;
 
+  /**
+   * The new state created by [EditorState](https://codemirror.net/docs/ref/#state.EditorState)
+   */
+  state!: EditorState;
+
   private _updateListener = EditorView.updateListener.of(vu => {
     if (vu.docChanged && !vu.transactions.some(tr => tr.annotation(External))) {
       const value = vu.state.doc.toString();
@@ -224,10 +229,14 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   }
 
   ngOnInit(): void {
+    this.state = EditorState.create({
+      doc: this.value,
+      extensions: this._getAllExtensions(),
+    });
     this.view = new EditorView({
       root: this.root,
       parent: this._elementRef.nativeElement,
-      state: EditorState.create({ doc: this.value, extensions: this._getAllExtensions() }),
+      state: this.state,
     });
 
     if (this.autoFocus) {
