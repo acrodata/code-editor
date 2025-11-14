@@ -12,6 +12,7 @@ import {
   ViewEncapsulation,
   booleanAttribute,
   forwardRef,
+  inject,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -64,6 +65,8 @@ export interface DiffEditorModel {
   ],
 })
 export class DiffEditor implements OnChanges, OnInit, OnDestroy, ControlValueAccessor {
+  private _elementRef = inject<ElementRef<Element>>(ElementRef);
+
   /**
    * The editor's built-in setup. The value can be set to
    * [`basic`](https://codemirror.net/docs/ref/#codemirror.basicSetup),
@@ -147,8 +150,6 @@ export class DiffEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
 
   private _onChange: (value: DiffEditorModel) => void = () => {};
   private _onTouched: () => void = () => {};
-
-  constructor(private _elementRef: ElementRef<Element>) {}
 
   /** The merge view instance. */
   mergeView?: MergeView;

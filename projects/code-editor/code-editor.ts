@@ -12,6 +12,7 @@ import {
   ViewEncapsulation,
   booleanAttribute,
   forwardRef,
+  inject,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -61,6 +62,8 @@ export const External = Annotation.define<boolean>();
   ],
 })
 export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAccessor {
+  private _elementRef = inject<ElementRef<Element>>(ElementRef);
+
   /**
    * EditorView's [root](https://codemirror.net/docs/ref/#view.EditorView.root).
    *
@@ -137,8 +140,6 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
 
   private _onChange: (value: string) => void = () => {};
   private _onTouched: () => void = () => {};
-
-  constructor(private _elementRef: ElementRef<Element>) {}
 
   /**
    * The instance of [EditorView](https://codemirror.net/docs/ref/#view.EditorView).
