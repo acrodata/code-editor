@@ -34,7 +34,6 @@ export interface DiffEditorModel {
 
 @Component({
   selector: 'diff-editor',
-  standalone: true,
   template: ``,
   styles: `
     .diff-editor {

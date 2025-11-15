@@ -37,7 +37,6 @@ export const External = Annotation.define<boolean>();
 
 @Component({
   selector: 'code-editor',
-  standalone: true,
   template: ``,
   styles: `
     .code-editor {

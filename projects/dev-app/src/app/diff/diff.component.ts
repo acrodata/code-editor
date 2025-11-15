@@ -5,7 +5,6 @@ import { unifiedMergeView } from '@codemirror/merge';
 
 @Component({
   selector: 'app-diff',
-  standalone: true,
   imports: [DiffEditor, CodeEditor, FormsModule, ReactiveFormsModule],
   templateUrl: './diff.component.html',
   styleUrl: './diff.component.scss',

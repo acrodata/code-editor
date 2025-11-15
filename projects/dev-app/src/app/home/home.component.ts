@@ -10,7 +10,6 @@ import { unifiedMergeView } from '@codemirror/merge';
 
 @Component({
   selector: 'app-home',
-  standalone: true,
   imports: [FormsModule, ReactiveFormsModule, CodeEditor, DiffEditor, GuiForm, MatButtonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
