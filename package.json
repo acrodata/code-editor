@@ -17,7 +17,7 @@
     "build:lib": "ng build code-editor && cp README.md dist/code-editor",
     "publish": "npm run build:lib && cd dist/code-editor && npm publish",
     "deploy": "npm run build && ng deploy",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "private": true,
   "dependencies": {
