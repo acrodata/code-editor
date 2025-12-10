@@ -30,7 +30,6 @@ import { CodeEditor } from '@acrodata/code-editor';
 @Component({
   selector: 'your-app',
   template: `<code-editor [(ngModel)]="value" />`,
-  standalone: true,
   imports: [FormsModule, CodeEditor],
 })
 export class YourAppComponent {
@@ -48,7 +47,6 @@ import { DiffEditor } from '@acrodata/code-editor';
 @Component({
   selector: 'your-app',
   template: `<diff-editor [(ngModel)]="value" />`,
-  standalone: true,
   imports: [FormsModule, DiffEditor],
 })
 export class YourAppComponent {
