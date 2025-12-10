@@ -22,7 +22,6 @@
   "private": true,
   "dependencies": {
     "@acrodata/gui": "^3.0.0",
-    "@angular/animations": "^20.3.12",
     "@angular/cdk": "^20.2.13",
     "@angular/common": "^20.3.12",
     "@angular/compiler": "^20.3.12",
@@ -30,7 +29,6 @@
     "@angular/forms": "^20.3.12",
     "@angular/material": "^20.2.13",
     "@angular/platform-browser": "^20.3.12",
-    "@angular/platform-browser-dynamic": "^20.3.12",
     "@angular/router": "^20.3.12",
     "@codemirror/language-data": "^6.5.1",
     "@codemirror/merge": "^6.10.0",
