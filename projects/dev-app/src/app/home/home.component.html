@@ -8,43 +8,47 @@
 
   <div>
     <h4>
-      <button mat-button (click)="showOutput=!showOutput">Toggle output</button>
+      <button mat-button (click)="showOutput = !showOutput">Toggle output</button>
     </h4>
     <div class="editor-wrap">
-      <code-editor #editor
-                   [style.height]="'500px'"
-                   [(ngModel)]="code"
-                   (ngModelChange)="log($event)"
-                   [theme]="options.theme"
-                   [setup]="options.setup"
-                   [disabled]="options.disabled"
-                   [readonly]="options.readonly"
-                   [placeholder]="options.placeholder"
-                   [indentWithTab]="options.indentWithTab"
-                   [indentUnit]="options.indentUnit"
-                   [lineWrapping]="options.lineWrapping"
-                   [highlightWhitespace]="options.highlightWhitespace"
-                   [language]="options.language"
-                   [languages]="languages" />
+      <code-editor
+        #editor
+        [style.height]="'500px'"
+        [(ngModel)]="code"
+        (ngModelChange)="log($event)"
+        [theme]="options.theme"
+        [setup]="options.setup"
+        [disabled]="options.disabled"
+        [readonly]="options.readonly"
+        [placeholder]="options.placeholder"
+        [indentWithTab]="options.indentWithTab"
+        [indentUnit]="options.indentUnit"
+        [lineWrapping]="options.lineWrapping"
+        [highlightWhitespace]="options.highlightWhitespace"
+        [language]="options.language"
+        [languages]="languages"
+      />
 
       @if (showOutput) {
-      <textarea [style.height]="'500px'" [(ngModel)]="code"></textarea>
+        <textarea [style.height]="'500px'" [(ngModel)]="code"></textarea>
       }
     </div>
 
     <h4>Unified diff-editor</h4>
-    <code-editor #editor
-                 [style.height]="'500px'"
-                 [value]="modifiedCode"
-                 [theme]="options.theme"
-                 [setup]="options.setup"
-                 [readonly]="options.readonly"
-                 [placeholder]="options.placeholder"
-                 [indentWithTab]="options.indentWithTab"
-                 [indentUnit]="options.indentUnit"
-                 [lineWrapping]="options.lineWrapping"
-                 [highlightWhitespace]="options.highlightWhitespace"
-                 [extensions]="unifiedExts" />
+    <code-editor
+      #editor
+      [style.height]="'500px'"
+      [value]="modifiedCode"
+      [theme]="options.theme"
+      [setup]="options.setup"
+      [readonly]="options.readonly"
+      [placeholder]="options.placeholder"
+      [indentWithTab]="options.indentWithTab"
+      [indentUnit]="options.indentUnit"
+      [lineWrapping]="options.lineWrapping"
+      [highlightWhitespace]="options.highlightWhitespace"
+      [extensions]="unifiedExts"
+    />
   </div>
 </section>
 
@@ -58,13 +62,15 @@
 
   <div>
     <h4>Split diff-editor</h4>
-    <diff-editor #editor
-                 [style.height]="'100vh'"
-                 [originalValue]="originalCode"
-                 [modifiedValue]="modifiedCode"
-                 [orientation]="options2.orientation"
-                 [revertControls]="options2.revertControls"
-                 [highlightChanges]="options2.highlightChanges"
-                 [gutter]="options2.gutter" />
+    <diff-editor
+      #editor
+      [style.height]="'100vh'"
+      [originalValue]="originalCode"
+      [modifiedValue]="modifiedCode"
+      [orientation]="options2.orientation"
+      [revertControls]="options2.revertControls"
+      [highlightChanges]="options2.highlightChanges"
+      [gutter]="options2.gutter"
+    />
   </div>
 </section>
