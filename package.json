@@ -23,13 +23,13 @@
   "dependencies": {
     "@acrodata/gui": "^3.0.0",
     "@angular/cdk": "^20.2.13",
-    "@angular/common": "^20.3.12",
-    "@angular/compiler": "^20.3.12",
-    "@angular/core": "^20.3.12",
-    "@angular/forms": "^20.3.12",
+    "@angular/common": "^21.0.5",
+    "@angular/compiler": "^21.0.5",
+    "@angular/core": "^21.0.5",
+    "@angular/forms": "^21.0.5",
     "@angular/material": "^20.2.13",
-    "@angular/platform-browser": "^20.3.12",
-    "@angular/router": "^20.3.12",
+    "@angular/platform-browser": "^21.0.5",
+    "@angular/router": "^21.0.5",
     "@codemirror/language-data": "^6.5.1",
     "@codemirror/merge": "^6.10.0",
     "@codemirror/theme-one-dark": "^6.1.2",
@@ -41,9 +41,9 @@
     "zone.js": "~0.15.1"
   },
   "devDependencies": {
-    "@angular/build": "^20.3.10",
-    "@angular/cli": "^20.3.10",
-    "@angular/compiler-cli": "^20.3.12",
+    "@angular/build": "^21.0.3",
+    "@angular/cli": "^21.0.3",
+    "@angular/compiler-cli": "^21.0.5",
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "@types/jasmine": "~5.1.0",
@@ -60,12 +60,12 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "lint-staged": "^15.2.0",
-    "ng-packagr": "^20.3.2",
+    "ng-packagr": "^21.0.1",
     "prettier": "^3.6.0",
     "stylelint": "^16.5.0",
     "stylelint-config-recommended-scss": "^14.0.0",
     "stylelint-config-standard": "^36.0.0",
-    "typescript": "~5.8.3",
+    "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.0"
   }
 }
