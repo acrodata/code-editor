@@ -1,6 +1,10 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
+  "cli": {
+    "packageManager": "yarn",
+    "analytics": false
+  },
   "newProjectRoot": "projects",
   "projects": {
     "code-editor": {
@@ -25,13 +29,9 @@
           "defaultConfiguration": "production"
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "tsConfig": "projects/code-editor/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
+            "tsConfig": "projects/code-editor/tsconfig.spec.json"
           }
         },
         "lint": {
@@ -118,22 +118,9 @@
           }
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
-            "tsConfig": "projects/dev-app/tsconfig.spec.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              "projects/dev-app/src/favicon.ico",
-              "projects/dev-app/src/assets"
-            ],
-            "styles": [
-              "projects/dev-app/src/styles.scss"
-            ],
-            "scripts": []
+            "tsConfig": "projects/dev-app/tsconfig.spec.json"
           }
         },
         "lint": {
@@ -155,9 +142,6 @@
         }
       }
     }
-  },
-  "cli": {
-    "analytics": false
   },
   "schematics": {
     "@schematics/angular:component": {

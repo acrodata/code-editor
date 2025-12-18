@@ -10,7 +10,8 @@
     "start": "ng serve dev-app",
     "build": "ng build dev-app --base-href=/code-editor/",
     "watch": "ng build dev-app --watch --configuration development",
-    "test": "ng test dev-app",
+    "test": "npm run test:lib && ng test dev-app",
+    "test:lib": "ng test code-editor",
     "lint": "ng lint --fix && npm run lint:scss",
     "lint:ts": "eslint \"projects/**/*.ts\" --fix",
     "lint:scss": "stylelint \"projects/**/*.scss\" --fix",
@@ -54,18 +55,17 @@
     "eslint": "^9.39.0",
     "husky": "^9.1.6",
     "jasmine-core": "~5.1.0",
-    "karma": "~6.4.0",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
+    "jsdom": "^27.3.0",
     "lint-staged": "^15.2.0",
     "ng-packagr": "^21.0.1",
     "prettier": "^3.6.0",
+    "postcss": "^8.5.6",
     "stylelint": "^16.5.0",
     "stylelint-config-recommended-scss": "^14.0.0",
     "stylelint-config-standard": "^36.0.0",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.0"
+    "typescript-eslint": "^8.46.0",
+    "vitest": "^4.0.16",
+    "@vitest/coverage-v8": "^4.0.16"
   }
 }

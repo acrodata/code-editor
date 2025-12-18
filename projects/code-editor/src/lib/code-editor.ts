@@ -89,7 +89,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   /** The editor's theme. */
   @Input() theme: Theme = 'light';
 
-  /** The editor's placecholder. */
+  /** The editor's placeholder. */
   @Input() placeholder = '';
 
   /** Whether indent with Tab key. */
@@ -368,7 +368,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     });
   }
 
-  /** Find the language's extension by its name. Case insensitive. */
+  /** Find the language's extension by its name. Case-insensitive. */
   private _findLanguage(name: string) {
     for (const lang of this.languages) {
       for (const alias of [lang.name, ...lang.alias]) {
