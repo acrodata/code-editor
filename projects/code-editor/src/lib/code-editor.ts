@@ -1,18 +1,18 @@
+// noinspection CssUnusedSymbol
+
 import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges,
   ViewEncapsulation,
   booleanAttribute,
   forwardRef,
   inject,
+  input,
+  DestroyRef,
+  effect,
+  linkedSignal,
+  output,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -60,49 +60,51 @@ export const External = Annotation.define<boolean>();
     },
   ],
 })
-export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAccessor {
-  private _elementRef = inject<ElementRef<Element>>(ElementRef);
+export class CodeEditor implements ControlValueAccessor {
+  private readonly _elementRef = inject<ElementRef<Element>>(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   /**
    * EditorView's [root](https://codemirror.net/docs/ref/#view.EditorView.root).
    *
    * Don't support change dynamically!
    */
-  @Input() root?: Document | ShadowRoot;
+  readonly root = input<Document | ShadowRoot>();
 
   /**
    * Whether focus on the editor after init.
    *
    * Don't support change dynamically!
    */
-  @Input({ transform: booleanAttribute }) autoFocus = false;
+  readonly autoFocus = input(false, { transform: booleanAttribute });
 
   /** The editor's value. */
-  @Input() value = '';
+  readonly value = input('');
 
   /** Whether the editor is disabled.  */
-  @Input({ transform: booleanAttribute }) disabled = false;
+  readonly disabled = input(false, { transform: booleanAttribute });
+  readonly innerDisabled = linkedSignal(this.disabled);
 
   /** Whether the editor is readonly. */
-  @Input({ transform: booleanAttribute }) readonly = false;
+  readonly readonly = input(false, { transform: booleanAttribute });
 
   /** The editor's theme. */
-  @Input() theme: Theme = 'light';
+  readonly theme = input<Theme>('light');
 
   /** The editor's placeholder. */
-  @Input() placeholder = '';
+  readonly placeholder = input('');
 
   /** Whether indent with Tab key. */
-  @Input({ transform: booleanAttribute }) indentWithTab = false;
+  readonly indentWithTab = input(false, { transform: booleanAttribute });
 
   /** Should be a string consisting either entirely of the same whitespace character. */
-  @Input() indentUnit = '';
+  readonly indentUnit = input('');
 
   /** Whether the editor wraps lines. */
-  @Input({ transform: booleanAttribute }) lineWrapping = false;
+  readonly lineWrapping = input(false, { transform: booleanAttribute });
 
   /** Whether highlight the whitespace. */
-  @Input({ transform: booleanAttribute }) highlightWhitespace = false;
+  readonly highlightWhitespace = input(false, { transform: booleanAttribute });
 
   /**
    * An array of language descriptions for known
@@ -110,32 +112,32 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
    *
    * Don't support change dynamically!
    */
-  @Input() languages: LanguageDescription[] = [];
+  readonly languages = input<LanguageDescription[]>([]);
 
   /** The editor's language. You should set the `languages` prop at first. */
-  @Input() language = '';
+  readonly language = input('');
 
   /**
    * The editor's built-in setup. The value can be set to
    * [`basic`](https://codemirror.net/docs/ref/#codemirror.basicSetup),
    * [`minimal`](https://codemirror.net/docs/ref/#codemirror.minimalSetup) or `null`.
    */
-  @Input() setup: Setup = 'basic';
+  readonly setup = input<Setup>('basic');
 
   /**
    * It will be appended to the root
    * [extensions](https://codemirror.net/docs/ref/#state.EditorStateConfig.extensions).
    */
-  @Input() extensions: Extension[] = [];
+  readonly extensions = input<Extension[]>([]);
 
   /** Event emitted when the editor's value changes. */
-  @Output() change = new EventEmitter<string>();
+  readonly change = output<string>();
 
   /** Event emitted when focus on the editor. */
-  @Output() focus = new EventEmitter<void>();
+  readonly focus = output<void>();
 
   /** Event emitted when the editor has lost focus. */
-  @Output() blur = new EventEmitter<void>();
+  readonly blur = output<void>();
 
   private _onChange: (value: string) => void = () => {};
   private _onTouched: () => void = () => {};
@@ -184,62 +186,24 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
       this._highlightWhitespaceConf.of([]),
       this._languageConf.of([]),
 
-      this.setup === 'basic' ? basicSetup : this.setup === 'minimal' ? minimalSetup : [],
+      this.setup() === 'basic' ? basicSetup : this.setup() === 'minimal' ? minimalSetup : [],
 
-      ...this.extensions,
+      ...this.extensions(),
     ];
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (!this.view) return;
-
-    if (changes['value']) {
-      this.setValue(this.value);
-    }
-    if (changes['disabled']) {
-      this.setEditable(!this.disabled);
-    }
-    if (changes['readonly']) {
-      this.setReadonly(this.readonly);
-    }
-    if (changes['theme']) {
-      this.setTheme(this.theme);
-    }
-    if (changes['placeholder']) {
-      this.setPlaceholder(this.placeholder);
-    }
-    if (changes['indentWithTab']) {
-      this.setIndentWithTab(this.indentWithTab);
-    }
-    if (changes['indentUnit']) {
-      this.setIndentUnit(this.indentUnit);
-    }
-    if (changes['lineWrapping']) {
-      this.setLineWrapping(this.lineWrapping);
-    }
-    if (changes['highlightWhitespace']) {
-      this.setHighlightWhitespace(this.highlightWhitespace);
-    }
-    if (changes['language']) {
-      this.setLanguage(this.language);
-    }
-    if (changes['setup'] || changes['extensions']) {
-      this.setExtensions(this._getAllExtensions());
-    }
-  }
-
-  ngOnInit(): void {
+  constructor() {
     this.state = EditorState.create({
-      doc: this.value,
+      doc: this.value(),
       extensions: this._getAllExtensions(),
     });
     this.view = new EditorView({
-      root: this.root,
+      root: this.root(),
       parent: this._elementRef.nativeElement,
       state: this.state,
     });
 
-    if (this.autoFocus) {
+    if (this.autoFocus()) {
       this.view.focus();
     }
 
@@ -254,18 +218,100 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
     });
 
     this.setEditable(!this.disabled);
-    this.setReadonly(this.readonly);
-    this.setTheme(this.theme);
-    this.setPlaceholder(this.placeholder);
-    this.setIndentWithTab(this.indentWithTab);
-    this.setIndentUnit(this.indentUnit);
-    this.setLineWrapping(this.lineWrapping);
-    this.setHighlightWhitespace(this.highlightWhitespace);
-    this.setLanguage(this.language);
-  }
 
-  ngOnDestroy(): void {
-    this.view.destroy();
+    effect(() => {
+      const readonly = this.readonly();
+
+      if (this.view) {
+        this.setReadonly(readonly);
+      }
+    });
+
+    effect(() => {
+      const theme = this.theme();
+
+      if (this.view) {
+        this.setTheme(theme);
+      }
+    });
+
+    effect(() => {
+      const placeholder = this.placeholder();
+
+      if (this.view) {
+        this.setPlaceholder(placeholder);
+      }
+    });
+
+    effect(() => {
+      const value = this.indentWithTab();
+
+      if (this.view) {
+        this.setIndentWithTab(value);
+      }
+    });
+
+    effect(() => {
+      const value = this.indentUnit();
+
+      if (this.view) {
+        this.setIndentUnit(value);
+      }
+    });
+
+    effect(() => {
+      const value = this.lineWrapping();
+
+      if (this.view) {
+        this.setLineWrapping(value);
+      }
+    });
+
+    effect(() => {
+      const value = this.highlightWhitespace();
+
+      if (this.view) {
+        this.setHighlightWhitespace(value);
+      }
+    });
+
+    effect(() => {
+      const value = this.language();
+
+      if (this.view) {
+        this.setLanguage(value);
+      }
+    });
+
+    effect(() => {
+      this.setup();
+      this.extensions();
+
+      this.setExtensions(this._getAllExtensions());
+    });
+
+    let initial = true;
+
+    effect(() => {
+      const value = this.value();
+
+      if (!initial && this.view) {
+        this.setValue(value);
+      }
+    });
+
+    effect(() => {
+      // this is linked to the disabled input
+      const disabled = this.innerDisabled();
+
+      if (!initial && this.view) {
+        this.setEditable(!disabled);
+      }
+    });
+
+    initial = false;
+
+    this.destroyRef.onDestroy(() => this.view.destroy());
   }
 
   writeValue(value: any): void {
@@ -283,8 +329,8 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   }
 
   setDisabledState(isDisabled: boolean) {
-    this.disabled = isDisabled;
-    this.setEditable(!isDisabled);
+    this.innerDisabled.set(isDisabled);
+    // triggered with effect
   }
 
   /** Sets editor's value. */
@@ -356,7 +402,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
       this._dispatchEffects(this._languageConf.reconfigure([]));
       return;
     }
-    if (this.languages.length === 0) {
+    if (this.languages().length === 0) {
       if (this.view) {
         console.error('No supported languages. Please set the `languages` prop at first.');
       }
@@ -370,7 +416,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
 
   /** Find the language's extension by its name. Case-insensitive. */
   private _findLanguage(name: string) {
-    for (const lang of this.languages) {
+    for (const lang of this.languages()) {
       for (const alias of [lang.name, ...lang.alias]) {
         if (name.toLowerCase() === alias.toLowerCase()) {
           return lang;
@@ -378,7 +424,12 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
       }
     }
     console.error('Language not found:', name);
-    console.info('Supported language names:', this.languages.map(lang => lang.name).join(', '));
+    console.info(
+      'Supported language names:',
+      this.languages()
+        .map(lang => lang.name)
+        .join(', ')
+    );
     return null;
   }
 }

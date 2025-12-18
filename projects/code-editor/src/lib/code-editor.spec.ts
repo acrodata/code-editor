@@ -1,10 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CodeEditor } from './code-editor';
 import { EditorView } from '@codemirror/view';
 import { indentMore } from '@codemirror/commands';
-import { set } from 'lodash-es';
 import { Extension } from '@codemirror/state';
 
 describe('CodeEditor', () => {
@@ -34,6 +32,7 @@ describe('CodeEditor', () => {
     const testValue = 'console.log("Hello, World!");';
     fixture.componentRef.setInput('value', testValue);
     fixture.detectChanges();
+
     await fixture.whenStable();
 
     expect(setValueSpy).toHaveBeenCalledWith(testValue);
@@ -109,7 +108,6 @@ describe('CodeEditor', () => {
 
     fixture.componentRef.setInput('indentWithTab', true);
     fixture.detectChanges();
-
     await fixture.whenStable();
 
     expect(setIndentWithTabSpy).toHaveBeenCalledWith(true);
@@ -204,9 +202,13 @@ describe('CodeEditor', () => {
     expect(component.view.state.doc.toString()).toBe(testValue);
   });
 
-  it('should set disabled state using ControlValueAccessor', () => {
+  it('should set disabled state using ControlValueAccessor', async () => {
+    const setEditableSpy = vi.spyOn(component, 'setEditable');
     component.setDisabledState(true);
     fixture.detectChanges();
+    await fixture.whenStable();
+
     expect(component.view.state.facet(EditorView.editable)).toBe(false);
+    expect(setEditableSpy).toHaveBeenCalledWith(false);
   });
 });

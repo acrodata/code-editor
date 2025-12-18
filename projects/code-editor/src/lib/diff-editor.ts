@@ -1,3 +1,5 @@
+// noinspection CssUnusedSymbol
+
 import {
   ChangeDetectionStrategy,
   Component,
