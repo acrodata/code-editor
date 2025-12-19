@@ -1,6 +1,6 @@
 {
   "name": "@acrodata/code-editor",
-  "version": "0.6.0",
+  "version": "21.0.0",
   "description": "CodeMirror 6 wrapper for Angular",
   "publishConfig": {
     "access": "public"
@@ -20,8 +20,8 @@
     "ngx-codemirror"
   ],
   "peerDependencies": {
-    "@angular/core": ">=17.0.0",
-    "@angular/forms": ">=17.0.0"
+    "@angular/core": ">=21.0.0",
+    "@angular/forms": ">=21.0.0"
   },
   "dependencies": {
     "@codemirror/merge": "^6.0.0",
