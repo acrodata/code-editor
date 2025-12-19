@@ -1,4 +1,11 @@
-import { AfterViewInit, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  ChangeDetectionStrategy,
+  afterNextRender,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,10 +20,9 @@ import { unifiedMergeView } from '@codemirror/merge';
   imports: [FormsModule, ReactiveFormsModule, CodeEditor, DiffEditor, GuiForm, MatButtonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements OnInit, AfterViewInit {
-  private readonly destroyRef = inject(DestroyRef);
-
+export class HomeComponent {
   languages = languages;
 
   form = new FormGroup({});
@@ -89,30 +95,32 @@ export class HomeComponent implements OnInit, AfterViewInit {
     highlightWhitespace: false,
   };
 
-  code = '';
+  code = signal('');
 
   showOutput = false;
 
-  ngOnInit(): void {
+  constructor() {
     this.getLangSample('javascript');
-  }
 
-  ngAfterViewInit(): void {
-    this.form
-      .get('language')
-      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((lang: string) => {
-        console.log(lang);
-        this.getLangSample(lang.replace(' ', '_').replace('#', 'sharp'));
-      });
+    const destroyRef = inject(DestroyRef);
+
+    afterNextRender(() => {
+      this.form
+        .get('language')
+        ?.valueChanges.pipe(takeUntilDestroyed(destroyRef))
+        .subscribe((lang: string) => {
+          console.log(lang);
+          this.getLangSample(lang.replace(' ', '_').replace('#', 'sharp'));
+        });
+    });
   }
 
   getLangSample(lang: string) {
     fetch(`assets/lang_samples/${lang}.txt`).then(async response => {
       if (response.ok) {
-        this.code = await response.text();
+        this.code.set(await response.text());
       } else {
-        this.code = '';
+        this.code.set('');
       }
     });
   }

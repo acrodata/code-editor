@@ -1,5 +1,5 @@
 import { CodeEditor, DiffEditor, Orientation, RevertControls, Setup } from '@acrodata/code-editor';
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { unifiedMergeView } from '@codemirror/merge';
 
@@ -8,6 +8,7 @@ import { unifiedMergeView } from '@codemirror/merge';
   imports: [DiffEditor, CodeEditor, FormsModule, ReactiveFormsModule],
   templateUrl: './diff.component.html',
   styleUrl: './diff.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DiffComponent {
   doc = `one

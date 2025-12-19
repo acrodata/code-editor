@@ -31,7 +31,8 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "tsConfig": "projects/code-editor/tsconfig.spec.json"
+            "tsConfig": "projects/code-editor/tsconfig.spec.json",
+            "browsers": ["chromiumheadless"]
           }
         },
         "lint": {
@@ -63,9 +64,7 @@
             "outputPath": "dist/dev-app",
             "index": "projects/dev-app/src/index.html",
             "browser": "projects/dev-app/src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": [],
             "tsConfig": "projects/dev-app/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -120,7 +119,8 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "tsConfig": "projects/dev-app/tsconfig.spec.json"
+            "tsConfig": "projects/dev-app/tsconfig.spec.json",
+            "browsers": ["chromiumheadless"]
           }
         },
         "lint": {

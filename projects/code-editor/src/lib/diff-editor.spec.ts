@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DiffEditor, Orientation, RevertControls } from './diff-editor';
-import { Component, input, viewChild } from '@angular/core';
+import {
+  Component,
+  input,
+  provideCheckNoChangesConfig,
+  provideZonelessChangeDetection,
+  viewChild,
+} from '@angular/core';
 import { Setup } from '@acrodata/code-editor';
 import { DiffConfig } from '@codemirror/merge';
 
@@ -13,13 +19,17 @@ describe('DiffEditor', () => {
     async () =>
       await TestBed.configureTestingModule({
         imports: [DiffEditor],
+        providers: [
+          provideZonelessChangeDetection(),
+          provideCheckNoChangesConfig({ exhaustive: true, interval: 50 }),
+        ],
       }).compileComponents()
   );
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fixture = TestBed.createComponent(DiffEditor);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it('should create', () => {
@@ -31,7 +41,6 @@ describe('DiffEditor', () => {
 
     const testValue = 'console.log("Hello, World!");';
     fixture.componentRef.setInput('originalValue', testValue);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -43,7 +52,6 @@ describe('DiffEditor', () => {
 
     const testValue = 'console.log("Hello, World!");';
     fixture.componentRef.setInput('modifiedValue', testValue);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -55,7 +63,6 @@ describe('DiffEditor', () => {
 
     const testValue = 'a-b';
     fixture.componentRef.setInput('orientation', testValue);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -67,7 +74,6 @@ describe('DiffEditor', () => {
 
     const testValue = 'a-to-b';
     fixture.componentRef.setInput('revertControls', testValue);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -79,7 +85,6 @@ describe('DiffEditor', () => {
 
     const testValue = () => document.body;
     fixture.componentRef.setInput('renderRevertControl', testValue);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -91,7 +96,6 @@ describe('DiffEditor', () => {
 
     const testValue = false;
     fixture.componentRef.setInput('highlightChanges', testValue);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -103,7 +107,6 @@ describe('DiffEditor', () => {
 
     const testValue = false;
     fixture.componentRef.setInput('gutter', testValue);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -115,7 +118,6 @@ describe('DiffEditor', () => {
 
     const testValue = {};
     fixture.componentRef.setInput('collapseUnchanged', testValue);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -130,7 +132,6 @@ describe('DiffEditor', () => {
       timeout: 2,
     };
     fixture.componentRef.setInput('diffConfig', testValue);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -142,7 +143,6 @@ describe('DiffEditor', () => {
 
     const testValue = true;
     fixture.componentRef.setInput('disabled', testValue);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -192,11 +192,15 @@ describe('Diff Editor Advanced', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideCheckNoChangesConfig({ exhaustive: true, interval: 50 }),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it('should output originalValueChange', async () => {
@@ -206,7 +210,6 @@ describe('Diff Editor Advanced', () => {
     component.editor().mergeView!.a.dispatch({
       changes: { from: 0, insert: testValue },
     });
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -220,7 +223,6 @@ describe('Diff Editor Advanced', () => {
     component.editor().mergeView!.b.dispatch({
       changes: { from: 0, insert: testValue },
     });
-    fixture.detectChanges();
 
     await fixture.whenStable();
 

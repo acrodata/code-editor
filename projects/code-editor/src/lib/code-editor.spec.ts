@@ -4,6 +4,7 @@ import { CodeEditor } from './code-editor';
 import { EditorView } from '@codemirror/view';
 import { indentMore } from '@codemirror/commands';
 import { Extension } from '@codemirror/state';
+import { provideCheckNoChangesConfig, provideZonelessChangeDetection } from '@angular/core';
 
 describe('CodeEditor', () => {
   let component: CodeEditor;
@@ -13,13 +14,17 @@ describe('CodeEditor', () => {
     async () =>
       await TestBed.configureTestingModule({
         imports: [CodeEditor],
+        providers: [
+          provideZonelessChangeDetection(),
+          provideCheckNoChangesConfig({ exhaustive: true, interval: 50 }),
+        ],
       }).compileComponents()
   );
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fixture = TestBed.createComponent(CodeEditor);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it('should create', () => {
@@ -31,7 +36,6 @@ describe('CodeEditor', () => {
 
     const testValue = 'console.log("Hello, World!");';
     fixture.componentRef.setInput('value', testValue);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -42,7 +46,7 @@ describe('CodeEditor', () => {
     const setDisabledSpy = vi.spyOn(component, 'setEditable');
 
     fixture.componentRef.setInput('disabled', true);
-    fixture.detectChanges();
+
     await fixture.whenStable();
 
     expect(setDisabledSpy).toHaveBeenCalledWith(false);
@@ -52,7 +56,7 @@ describe('CodeEditor', () => {
     const setReadonlySpy = vi.spyOn(component, 'setReadonly');
 
     fixture.componentRef.setInput('readonly', true);
-    fixture.detectChanges();
+
     await fixture.whenStable();
 
     expect(setReadonlySpy).toHaveBeenCalledWith(true);
@@ -62,7 +66,7 @@ describe('CodeEditor', () => {
     const setThemeSpy = vi.spyOn(component, 'setTheme');
 
     fixture.componentRef.setInput('theme', 'dark');
-    fixture.detectChanges();
+
     await fixture.whenStable();
 
     expect(setThemeSpy).toHaveBeenCalledWith('dark');
@@ -74,7 +78,6 @@ describe('CodeEditor', () => {
     const placeholderText = 'Enter your code here';
     fixture.componentRef.setInput('placeholder', placeholderText);
 
-    fixture.detectChanges();
     await fixture.whenStable();
 
     expect(setPlaceHolderSpy).toHaveBeenCalledWith(placeholderText);
@@ -83,7 +86,6 @@ describe('CodeEditor', () => {
   it('should use the specified indentUnit for indentation', async () => {
     const indent = '    '; // 4 spaces
     fixture.componentRef.setInput('indentUnit', indent);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -107,7 +109,7 @@ describe('CodeEditor', () => {
     const setIndentWithTabSpy = vi.spyOn(component, 'setIndentWithTab');
 
     fixture.componentRef.setInput('indentWithTab', true);
-    fixture.detectChanges();
+
     await fixture.whenStable();
 
     expect(setIndentWithTabSpy).toHaveBeenCalledWith(true);
@@ -117,7 +119,6 @@ describe('CodeEditor', () => {
     const setLanguageSpy = vi.spyOn(component, 'setLanguage');
 
     fixture.componentRef.setInput('language', 'whatever');
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -132,7 +133,6 @@ describe('CodeEditor', () => {
     const empty: Extension[] = [];
 
     fixture.componentRef.setInput('extensions', empty);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -146,7 +146,6 @@ describe('CodeEditor', () => {
     const getAllExtensionsSpy = vi.spyOn(component as any, '_getAllExtensions');
 
     fixture.componentRef.setInput('setup', 'minimal');
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -158,7 +157,6 @@ describe('CodeEditor', () => {
     const setLineWrappingSpy = vi.spyOn(component, 'setLineWrapping');
 
     fixture.componentRef.setInput('lineWrapping', true);
-    fixture.detectChanges();
 
     await fixture.whenStable();
 
@@ -169,7 +167,7 @@ describe('CodeEditor', () => {
     const setHighlightWhitespaceSpy = vi.spyOn(component, 'setHighlightWhitespace');
 
     fixture.componentRef.setInput('highlightWhitespace', true);
-    fixture.detectChanges();
+
     await fixture.whenStable();
 
     expect(setHighlightWhitespaceSpy).toHaveBeenCalledWith(true);
@@ -198,14 +196,14 @@ describe('CodeEditor', () => {
   it('should write value using ControlValueAccessor', () => {
     const testValue = 'accessor test';
     component.writeValue(testValue);
-    fixture.detectChanges();
+
     expect(component.view.state.doc.toString()).toBe(testValue);
   });
 
   it('should set disabled state using ControlValueAccessor', async () => {
     const setEditableSpy = vi.spyOn(component, 'setEditable');
     component.setDisabledState(true);
-    fixture.detectChanges();
+
     await fixture.whenStable();
 
     expect(component.view.state.facet(EditorView.editable)).toBe(false);
