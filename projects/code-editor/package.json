@@ -20,8 +20,8 @@
     "ngx-codemirror"
   ],
   "peerDependencies": {
-    "@angular/core": ">=21.0.0",
-    "@angular/forms": ">=21.0.0"
+    "@angular/core": ">=20.0.0",
+    "@angular/forms": ">=20.0.0"
   },
   "dependencies": {
     "@codemirror/merge": "^6.0.0",
