@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DiffEditor } from './diff-editor';
+import { DiffEditor, Orientation, RevertControls } from './diff-editor';
+import { Component, input, viewChild } from '@angular/core';
+import { Setup } from '@acrodata/code-editor';
+import { DiffConfig } from '@codemirror/merge';
 
 describe('DiffEditor', () => {
   let component: DiffEditor;
@@ -122,7 +125,10 @@ describe('DiffEditor', () => {
   it('should update diffConfig', async () => {
     const setValueSpy = vi.spyOn(component.mergeView!, 'reconfigure');
 
-    const testValue = undefined;
+    const testValue: DiffConfig = {
+      scanLimit: 4,
+      timeout: 2,
+    };
     fixture.componentRef.setInput('diffConfig', testValue);
     fixture.detectChanges();
 
@@ -134,13 +140,90 @@ describe('DiffEditor', () => {
   it('should update disabled', async () => {
     const setValueSpy = vi.spyOn(component, 'setEditable');
 
-    const testValue = false;
+    const testValue = true;
     fixture.componentRef.setInput('disabled', testValue);
     fixture.detectChanges();
 
     await fixture.whenStable();
 
-    expect(setValueSpy).toHaveBeenCalledWith('a', true);
-    expect(setValueSpy).toHaveBeenCalledWith('b', true);
+    expect(setValueSpy).toHaveBeenCalledWith('a', false);
+    expect(setValueSpy).toHaveBeenCalledWith('b', false);
+  });
+});
+
+@Component({
+  template: `
+    <diff-editor
+      [setup]="setup"
+      [originalValue]="originalValue()"
+      [modifiedValue]="modifiedValue()"
+      [orientation]="orientation"
+      [highlightChanges]="highlightChanges"
+      [gutter]="gutter"
+      [disabled]="disabled"
+      (originalValueChange)="originalValueChange()"
+      (modifiedValueChange)="modifiedValueChange()"
+    />
+  `,
+  imports: [DiffEditor],
+  standalone: true,
+})
+class TestHostComponent {
+  editor = viewChild.required(DiffEditor);
+
+  setup: Setup = 'minimal';
+  orientation: Orientation = 'a-b';
+  revertControls: RevertControls = 'a-to-b';
+  highlightChanges = input(true);
+  gutter = true;
+  disabled = false;
+
+  originalValue = input<string>('abc');
+  modifiedValue = input<string>('def');
+
+  originalValueChange() {}
+  modifiedValueChange() {}
+}
+
+describe('Diff Editor Advanced', () => {
+  let component: TestHostComponent;
+  let fixture: ComponentFixture<TestHostComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [TestHostComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(TestHostComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should output originalValueChange', async () => {
+    const testValue = 'console.log("Hello, World!");';
+    const changeSpy = vi.spyOn(component, 'originalValueChange');
+
+    component.editor().mergeView!.a.dispatch({
+      changes: { from: 0, insert: testValue },
+    });
+    fixture.detectChanges();
+
+    await fixture.whenStable();
+
+    expect(changeSpy).toHaveBeenCalled();
+  });
+
+  it('should output modifiedValueChange', async () => {
+    const testValue = 'console.log("Hello, World!");';
+    const changeSpy = vi.spyOn(component, 'modifiedValueChange');
+
+    component.editor().mergeView!.b.dispatch({
+      changes: { from: 0, insert: testValue },
+    });
+    fixture.detectChanges();
+
+    await fixture.whenStable();
+
+    expect(changeSpy).toHaveBeenCalled();
   });
 });
