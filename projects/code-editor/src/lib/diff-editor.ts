@@ -6,7 +6,6 @@ import {
   ElementRef,
   ViewEncapsulation,
   booleanAttribute,
-  forwardRef,
   inject,
   input,
   model,
@@ -15,14 +14,12 @@ import {
   output,
   linkedSignal,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-
 import { DiffConfig, MergeView } from '@codemirror/merge';
 import { Compartment, Extension } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { basicSetup, minimalSetup } from 'codemirror';
-
 import { External, Setup } from './code-editor';
+import { FormValueControl } from '@angular/forms/signals';
 
 export type Orientation = 'a-b' | 'b-a';
 export type RevertControls = 'a-to-b' | 'b-to-a';
@@ -56,15 +53,8 @@ export interface DiffEditorModel {
   },
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DiffEditor),
-      multi: true,
-    },
-  ],
 })
-export class DiffEditor implements ControlValueAccessor {
+export class DiffEditor implements FormValueControl<DiffEditorModel> {
   private _elementRef = inject<ElementRef<Element>>(ElementRef);
 
   /**
@@ -76,8 +66,10 @@ export class DiffEditor implements ControlValueAccessor {
    */
   readonly setup = input<Setup>('basic');
 
-  /** The diff-editor's original value. */
-  readonly originalValue = model('');
+  readonly value = model<DiffEditorModel>({
+    original: '',
+    modified: '',
+  });
 
   /**
    * The MergeView original config's
@@ -86,9 +78,6 @@ export class DiffEditor implements ControlValueAccessor {
    * Doesn't support changing dynamically!
    */
   readonly originalExtensions = input<Extension[]>([]);
-
-  /** The diff-editor's modified value. */
-  readonly modifiedValue = model('');
 
   /**
    * The MergeView modified config's
@@ -118,7 +107,6 @@ export class DiffEditor implements ControlValueAccessor {
 
   /** Whether the diff-editor is disabled. */
   readonly disabled = input(false, { transform: booleanAttribute });
-  private readonly disabledInternal = linkedSignal(this.disabled);
 
   /**
    * When given, long stretches of unchanged text are collapsed.
@@ -143,23 +131,20 @@ export class DiffEditor implements ControlValueAccessor {
   /** Event emitted when blur on the modified editor. */
   readonly modifiedBlur = output<void>();
 
-  private _onChange: (value: DiffEditorModel) => void = () => {};
-  private _onTouched: () => void = () => {};
-
   /** The merge view instance. */
   mergeView?: MergeView;
+
+  private _lastInternalChange: DiffEditorModel | null = null;
 
   private _updateListener = (editor: 'a' | 'b') => {
     return EditorView.updateListener.of(vu => {
       if (vu.docChanged && !vu.transactions.some(tr => tr.annotation(External))) {
         const value = vu.state.doc.toString();
-        if (editor == 'a') {
-          this._onChange({ original: value, modified: this.modifiedValue() });
-          this.originalValue.set(value);
-        } else if (editor == 'b') {
-          this._onChange({ original: this.originalValue(), modified: value });
-          this.modifiedValue.set(value);
-        }
+        this.value.update(model => {
+          const newModel = { ...model, [editor === 'a' ? 'original' : 'modified']: value };
+          this._lastInternalChange = newModel;
+          return newModel;
+        });
       }
     });
   };
@@ -170,7 +155,7 @@ export class DiffEditor implements ControlValueAccessor {
     this.mergeView = new MergeView({
       parent: this._elementRef.nativeElement,
       a: {
-        doc: this.originalValue(),
+        doc: this.value().original,
         extensions: [
           this._updateListener('a'),
           this._editableConf.of([]),
@@ -179,7 +164,7 @@ export class DiffEditor implements ControlValueAccessor {
         ],
       },
       b: {
-        doc: this.modifiedValue(),
+        doc: this.value().modified,
         extensions: [
           this._updateListener('b'),
           this._editableConf.of([]),
@@ -197,45 +182,36 @@ export class DiffEditor implements ControlValueAccessor {
     });
 
     this.mergeView?.a.contentDOM.addEventListener('focus', () => {
-      this._onTouched();
       this.originalFocus.emit();
     });
 
     this.mergeView?.a.contentDOM.addEventListener('blur', () => {
-      this._onTouched();
       this.originalBlur.emit();
     });
 
     this.mergeView?.b.contentDOM.addEventListener('focus', () => {
-      this._onTouched();
       this.modifiedFocus.emit();
     });
 
     this.mergeView?.b.contentDOM.addEventListener('blur', () => {
-      this._onTouched();
       this.modifiedBlur.emit();
     });
 
     effect(() => {
-      this.setEditable('a', !this.disabledInternal());
-      this.setEditable('b', !this.disabledInternal());
+      this.setEditable('a', !this.disabled());
+      this.setEditable('b', !this.disabled());
     });
 
     let initial = true;
 
     effect(() => {
-      const value = this.originalValue();
+      const value = this.value();
+
+      if (value === this._lastInternalChange) return;
 
       if (!initial) {
-        this.setValue('a', value);
-      }
-    });
-
-    effect(() => {
-      const value = this.modifiedValue();
-
-      if (!initial) {
-        this.setValue('b', value);
+        this.setValue('a', value.original);
+        this.setValue('b', value.modified);
       }
     });
 
@@ -300,31 +276,14 @@ export class DiffEditor implements ControlValueAccessor {
     inject(DestroyRef).onDestroy(() => this.mergeView?.destroy());
   }
 
-  writeValue(value: DiffEditorModel): void {
-    if (this.mergeView && value != null && typeof value === 'object') {
-      this.originalValue.set(value.original);
-      this.modifiedValue.set(value.modified);
-      // this.setValue('a', value.original);
-      // this.setValue('b', value.modified);
-    }
-  }
-
-  registerOnChange(fn: (value: DiffEditorModel) => void) {
-    this._onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void) {
-    this._onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean) {
-    this.disabledInternal.set(isDisabled);
-  }
-
   /** Sets diff-editor's value. */
-  setValue(editor: 'a' | 'b', value: string) {
-    this.mergeView?.[editor].dispatch({
-      changes: { from: 0, to: this.mergeView[editor].state.doc.length, insert: value },
+  private setValue(editor: 'a' | 'b', value: string) {
+    const view = this.mergeView?.[editor];
+    if (!view || view.state.doc.toString() === value) return;
+
+    view.dispatch({
+      changes: { from: 0, to: view.state.doc.length, insert: value },
+      annotations: External.of(true),
     });
   }
 

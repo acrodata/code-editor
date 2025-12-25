@@ -5,24 +5,35 @@ import {
   ChangeDetectionStrategy,
   afterNextRender,
   signal,
+  model,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Field, form, readonly, disabled } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
-
-import { CodeEditor, DiffEditor } from '@acrodata/code-editor';
+import { CodeEditor, DiffEditor, DiffEditorModel } from '@acrodata/code-editor';
 import { GuiFields, GuiForm } from '@acrodata/gui';
 import { languages } from '@codemirror/language-data';
 import { unifiedMergeView } from '@codemirror/merge';
+import { map, of } from 'rxjs';
 
 @Component({
   selector: 'app-home',
-  imports: [FormsModule, ReactiveFormsModule, CodeEditor, DiffEditor, GuiForm, MatButtonModule],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    CodeEditor,
+    DiffEditor,
+    GuiForm,
+    MatButtonModule,
+    Field,
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
+  readonly destroyRef = inject(DestroyRef);
   languages = languages;
 
   form = new FormGroup({});
@@ -95,19 +106,36 @@ export class HomeComponent {
     highlightWhitespace: false,
   };
 
-  code = signal('');
+  code = model({ code: '' });
+  readonly readonly = toSignal(
+    this.form.get('readonly')?.valueChanges.pipe(
+      map((value: boolean) => !!value),
+      takeUntilDestroyed(this.destroyRef)
+    ) ?? of(false),
+    { initialValue: this.options.readonly }
+  );
+  readonly disabled = toSignal(
+    this.form.get('disabled')?.valueChanges.pipe(
+      map((value: boolean) => !!value),
+      takeUntilDestroyed(this.destroyRef)
+    ) ?? of(false),
+    { initialValue: this.options.disabled }
+  );
+
+  codeForm = form(this.code, path => {
+    readonly(path.code, () => this.readonly());
+    disabled(path.code, () => this.disabled());
+  });
 
   showOutput = false;
 
   constructor() {
     this.getLangSample('javascript');
 
-    const destroyRef = inject(DestroyRef);
-
     afterNextRender(() => {
       this.form
         .get('language')
-        ?.valueChanges.pipe(takeUntilDestroyed(destroyRef))
+        ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((lang: string) => {
           console.log(lang);
           this.getLangSample(lang.replace(' ', '_').replace('#', 'sharp'));
@@ -118,9 +146,9 @@ export class HomeComponent {
   getLangSample(lang: string) {
     fetch(`assets/lang_samples/${lang}.txt`).then(async response => {
       if (response.ok) {
-        this.code.set(await response.text());
+        this.code.set({ code: await response.text() });
       } else {
-        this.code.set('');
+        this.code.set({ code: '' });
       }
     });
   }
@@ -135,6 +163,13 @@ three
 four
 five`;
   modifiedCode = this.originalCode.replace(/t/g, 'T') + '\nSix';
+
+  diffCode = model<DiffEditorModel>({
+    original: this.originalCode,
+    modified: this.modifiedCode,
+  });
+
+  diffFormElement = form(this.diffCode);
 
   unifiedExts = [
     unifiedMergeView({

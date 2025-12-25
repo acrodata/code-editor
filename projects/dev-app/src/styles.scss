@@ -1,17 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
-@use '@angular/material' as mat;
-@use '@ng-matero/extensions' as mtx;
+@use "@angular/material" as mat;
+
+@use "assets/styles/theme-colours.scss" as colours;
 
 html {
-  color-scheme: light;
-
   @include mat.theme((
-    color: mat.$azure-palette,
-    typography: Roboto,
-    density: 0
+    color: (
+      primary: colours.$primary-palette,
+      tertiary: colours.$tertiary-palette,
+      theme-type: light,
+    ),
+    typography: 'Noto Sans',
+    density: 2
   ));
-}
-
-.theme-dark {
-  color-scheme: dark;
 }

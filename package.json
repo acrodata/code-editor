@@ -2,8 +2,7 @@
   "name": "code-editor-srcs",
   "version": "0.0.0-NOT-USED",
   "engines": {
-    "yarn": ">=1.22.0 <2",
-    "npm": "Please use Yarn instead of NPM to install dependencies"
+    "node": ">=24.12.0"
   },
   "scripts": {
     "ng": "ng",
@@ -45,29 +44,28 @@
     "@angular/build": "^21.0.3",
     "@angular/cli": "^21.0.3",
     "@angular/compiler-cli": "^21.0.5",
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
-    "@types/jasmine": "~5.1.0",
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
+    "@tailwindcss/postcss": "^4.1.18",
     "@types/lodash-es": "^4.17.10",
     "@types/node": "^20.12.0",
-    "angular-cli-ghpages": "^2.0.0",
-    "angular-eslint": "^20.6.0",
+    "@vitest/browser-playwright": "^4.0.16",
+    "@vitest/coverage-v8": "^4.0.16",
+    "angular-eslint": "^21.1.0",
     "eslint": "^9.39.0",
     "husky": "^9.1.6",
-    "jasmine-core": "~5.1.0",
     "jsdom": "^27.3.0",
     "lint-staged": "^15.2.0",
     "ng-packagr": "^21.0.1",
-    "prettier": "^3.6.0",
+    "playwright": "^1.57.0",
     "postcss": "^8.5.6",
+    "prettier": "^3.6.0",
     "stylelint": "^16.5.0",
     "stylelint-config-recommended-scss": "^14.0.0",
     "stylelint-config-standard": "^36.0.0",
+    "tailwindcss": "^4.1.18",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.0",
-    "vitest": "^4.0.16",
-    "@vitest/coverage-v8": "^4.0.16",
-    "@vitest/browser-playwright": "^4.0.16",
-    "playwright": "^1.57.0"
+    "typescript-eslint": "^8.50.1",
+    "vitest": "^4.0.16"
   }
 }

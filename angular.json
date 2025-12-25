@@ -2,7 +2,7 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "yarn",
+    "packageManager": "npm",
     "analytics": false
   },
   "newProjectRoot": "projects",
@@ -72,7 +72,8 @@
               "projects/dev-app/src/assets"
             ],
             "styles": [
-              "projects/dev-app/src/styles.scss"
+              "projects/dev-app/src/styles.scss",
+              "projects/dev-app/src/tailwind.css"
             ],
             "scripts": []
           },

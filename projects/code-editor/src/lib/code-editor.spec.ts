@@ -5,6 +5,7 @@ import { EditorView } from '@codemirror/view';
 import { indentMore } from '@codemirror/commands';
 import { Extension } from '@codemirror/state';
 import { provideCheckNoChangesConfig, provideZonelessChangeDetection } from '@angular/core';
+import { FormValueControl } from '@angular/forms/signals';
 
 describe('CodeEditor', () => {
   let component: CodeEditor;
@@ -193,16 +194,18 @@ describe('CodeEditor', () => {
     expect(component.blur.emit).toHaveBeenCalled();
   });
 
-  it('should write value using ControlValueAccessor', () => {
+  it('should write value using FormValueControl', async () => {
     const testValue = 'accessor test';
-    component.writeValue(testValue);
+    fixture.componentRef.setInput('value', testValue);
+
+    await fixture.whenStable();
 
     expect(component.view.state.doc.toString()).toBe(testValue);
   });
 
-  it('should set disabled state using ControlValueAccessor', async () => {
+  it('should set disabled state using FormValueControl', async () => {
     const setEditableSpy = vi.spyOn(component, 'setEditable');
-    component.setDisabledState(true);
+    fixture.componentRef.setInput('disabled', true);
 
     await fixture.whenStable();
 

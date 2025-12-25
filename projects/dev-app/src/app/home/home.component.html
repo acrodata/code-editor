@@ -14,12 +14,9 @@
       <code-editor
         #editor
         [style.height]="'500px'"
-        [(ngModel)]="code"
-        (ngModelChange)="log($event)"
+        [field]="codeForm.code"
         [theme]="options.theme"
         [setup]="options.setup"
-        [disabled]="options.disabled"
-        [readonly]="options.readonly"
         [placeholder]="options.placeholder"
         [indentWithTab]="options.indentWithTab"
         [indentUnit]="options.indentUnit"
@@ -30,7 +27,7 @@
       />
 
       @if (showOutput) {
-        <textarea [style.height]="'500px'" [(ngModel)]="code"></textarea>
+        <textarea [style.height]="'500px'" [field]="codeForm.code"></textarea>
       }
     </div>
 
@@ -65,8 +62,7 @@
     <diff-editor
       #editor
       [style.height]="'100vh'"
-      [originalValue]="originalCode"
-      [modifiedValue]="modifiedCode"
+      [field]="diffFormElement"
       [orientation]="options2.orientation"
       [revertControls]="options2.revertControls"
       [highlightChanges]="options2.highlightChanges"

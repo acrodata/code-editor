@@ -1,1 +1,16 @@
-<router-outlet />
+<nav mat-tab-nav-bar [tabPanel]="tabPanel">
+  @for (link of links; track link; let i = $index) {
+    <a mat-tab-link
+       [routerLink]="link.link"
+       (click)="activeLink.set(link.link)"
+       routerLinkActive
+       #rla="routerLinkActive"
+       [active]="rla.isActive"
+       (keydown)="activeLink.set(link.link)"
+       [tabIndex]="1 + i"
+    >{{link.label}}</a>
+  }
+</nav>
+<mat-tab-nav-panel #tabPanel>
+  <router-outlet />
+</mat-tab-nav-panel>

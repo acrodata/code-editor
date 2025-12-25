@@ -6,16 +6,13 @@ import {
   ElementRef,
   ViewEncapsulation,
   booleanAttribute,
-  forwardRef,
   inject,
   input,
   DestroyRef,
   effect,
-  linkedSignal,
   output,
+  model,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-
 import { indentWithTab } from '@codemirror/commands';
 import { LanguageDescription, indentUnit } from '@codemirror/language';
 import {
@@ -29,6 +26,7 @@ import {
 import { oneDark } from '@codemirror/theme-one-dark';
 import { EditorView, highlightWhitespace, keymap, placeholder } from '@codemirror/view';
 import { basicSetup, minimalSetup } from 'codemirror';
+import { FormValueControl } from '@angular/forms/signals';
 
 export type Theme = 'light' | 'dark' | Extension;
 export type Setup = 'basic' | 'minimal' | null;
@@ -52,15 +50,8 @@ export const External = Annotation.define<boolean>();
   },
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => CodeEditor),
-      multi: true,
-    },
-  ],
 })
-export class CodeEditor implements ControlValueAccessor {
+export class CodeEditor implements FormValueControl<string> {
   private readonly _elementRef = inject<ElementRef<Element>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -79,11 +70,10 @@ export class CodeEditor implements ControlValueAccessor {
   readonly autoFocus = input(false, { transform: booleanAttribute });
 
   /** The editor's value. */
-  readonly value = input('');
+  readonly value = model('');
 
   /** Whether the editor is disabled.  */
   readonly disabled = input(false, { transform: booleanAttribute });
-  readonly innerDisabled = linkedSignal(this.disabled);
 
   /** Whether the editor is readonly. */
   readonly readonly = input(false, { transform: booleanAttribute });
@@ -139,9 +129,6 @@ export class CodeEditor implements ControlValueAccessor {
   /** Event emitted when the editor has lost focus. */
   readonly blur = output<void>();
 
-  private _onChange: (value: string) => void = () => {};
-  private _onTouched: () => void = () => {};
-
   /**
    * The instance of [EditorView](https://codemirror.net/docs/ref/#view.EditorView).
    */
@@ -155,7 +142,6 @@ export class CodeEditor implements ControlValueAccessor {
   private _updateListener = EditorView.updateListener.of(vu => {
     if (vu.docChanged && !vu.transactions.some(tr => tr.annotation(External))) {
       const value = vu.state.doc.toString();
-      this._onChange(value);
       this.change.emit(value);
     }
   });
@@ -208,12 +194,10 @@ export class CodeEditor implements ControlValueAccessor {
     }
 
     this.view.contentDOM.addEventListener('focus', () => {
-      this._onTouched();
       this.focus.emit();
     });
 
     this.view.contentDOM.addEventListener('blur', () => {
-      this._onTouched();
       this.blur.emit();
     });
 
@@ -302,7 +286,7 @@ export class CodeEditor implements ControlValueAccessor {
 
     effect(() => {
       // this is linked to the disabled input
-      const disabled = this.innerDisabled();
+      const disabled = this.disabled();
 
       if (!initial && this.view) {
         this.setEditable(!disabled);
@@ -312,25 +296,6 @@ export class CodeEditor implements ControlValueAccessor {
     initial = false;
 
     this.destroyRef.onDestroy(() => this.view.destroy());
-  }
-
-  writeValue(value: any): void {
-    if (this.view) {
-      this.setValue(value);
-    }
-  }
-
-  registerOnChange(fn: (value: string) => void) {
-    this._onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void) {
-    this._onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean) {
-    this.innerDisabled.set(isDisabled);
-    // triggered with effect
   }
 
   /** Sets editor's value. */
