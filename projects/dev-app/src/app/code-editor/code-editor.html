@@ -1,0 +1,87 @@
+<div class="w-full flex flex-row gap-4">
+  <div class="w-120 ml-4 mt-4 grid grid-cols-[10rem_1fr] gap-4 items-center">
+    <label for="language">Language</label>
+    <div class="flex flex-row gap-2">
+      <mat-select [field]="form.language" id="language">
+        @for (language of languages; track language.value) {
+          <mat-option [value]="language.value">{{ language.label }}</mat-option>
+        }
+      </mat-select>
+      @if (form.language().errors().find(hasNotFound); as error) {
+        <mat-icon [matTooltip]="error.message">warning</mat-icon>
+      }
+    </div>
+
+    <label for="theme">Theme</label>
+    <div>
+      <mat-button-toggle-group [field]="form.theme" [hideSingleSelectionIndicator]="true" id="theme">
+        @for (theme of themes; track theme.value) {
+          <mat-button-toggle [value]="theme.value">{{ theme.label }}</mat-button-toggle>
+        }
+      </mat-button-toggle-group>
+    </div>
+
+    <label for="setup">Setup</label>
+    <div>
+      <mat-button-toggle-group [field]="form.setup" [hideSingleSelectionIndicator]="true" id="setup">
+        @for (setup of setups; track setup.value) {
+          <mat-button-toggle [value]="setup.value">{{ setup.label }}</mat-button-toggle>
+        }
+      </mat-button-toggle-group>
+    </div>
+
+    <label for="disabled"></label>
+    <div>
+      <mat-checkbox id="disabled" [field]="form.disabled">Disabled</mat-checkbox>
+    </div>
+
+    <label for="readonly"></label>
+    <div>
+      <mat-checkbox id="readonly" [field]="form.readonly">Readonly</mat-checkbox>
+    </div>
+
+    <label for="placeholder">Placeholder</label>
+    <mat-form-field>
+      <input matInput id="placeholder" [field]="form.placeholder">
+    </mat-form-field>
+
+    <label for="indent-with-tab"></label>
+    <div>
+      <mat-checkbox id="indent-with-tab" [field]="form.indentWithTab">Indent with Tab</mat-checkbox>
+    </div>
+
+    <label for="indent-unit">Indent Unit (spaces only)</label>
+    <mat-form-field>
+      <input matInput id="indent-unit" [field]="form.indentUnit" [errorStateMatcher]="matcher">
+      @if (form.indentUnit().errors().find(moreThanWhitespace); as error) {
+        <mat-error>{{error.message}}</mat-error>
+      }
+    </mat-form-field>
+
+    <label for="line-wrapping"></label>
+    <div>
+      <mat-checkbox id="line-wrapping" [field]="form.lineWrapping">Wrap Lines</mat-checkbox>
+    </div>
+
+    <label for="highlight-spaces"></label>
+    <div>
+      <mat-checkbox id="highlight-spaces" [field]="form.highlightWhitespace">Highlight Whitespace</mat-checkbox>
+    </div>
+  </div>
+
+  <div class="grow">
+    <code-editor
+      #editor
+      [style.height]="'500px'"
+      [field]="form.code"
+      [theme]="model().theme"
+      [setup]="model().setup"
+      [placeholder]="model().placeholder"
+      [indentWithTab]="model().indentWithTab"
+      [indentUnit]="model().indentUnit"
+      [lineWrapping]="model().lineWrapping"
+      [highlightWhitespace]="model().highlightWhitespace"
+      [language]="model().language"
+      [languages]="availableLanguages" />
+  </div>
+</div>
