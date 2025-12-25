@@ -4,7 +4,6 @@ import {
   inject,
   ChangeDetectionStrategy,
   afterNextRender,
-  signal,
   model,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';

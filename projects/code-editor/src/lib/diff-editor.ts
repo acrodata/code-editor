@@ -12,7 +12,6 @@ import {
   effect,
   DestroyRef,
   output,
-  linkedSignal,
 } from '@angular/core';
 import { DiffConfig, MergeView } from '@codemirror/merge';
 import { Compartment, Extension } from '@codemirror/state';

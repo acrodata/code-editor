@@ -5,7 +5,6 @@ import { EditorView } from '@codemirror/view';
 import { indentMore } from '@codemirror/commands';
 import { Extension } from '@codemirror/state';
 import { provideCheckNoChangesConfig, provideZonelessChangeDetection } from '@angular/core';
-import { FormValueControl } from '@angular/forms/signals';
 
 describe('CodeEditor', () => {
   let component: CodeEditor;

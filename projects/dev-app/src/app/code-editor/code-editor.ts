@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, signal } from '@angular/core';
 import { languages } from '@codemirror/language-data';
 import { disabled, Field, form, readonly, validate, ValidationError } from '@angular/forms/signals';
 import { MatError, MatFormField, MatLabel, MatOption, MatSelect } from '@angular/material/select';
@@ -10,8 +10,7 @@ import { httpResource } from '@angular/common/http';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { AbstractControl, FormControl, FormGroupDirective, NgForm } from '@angular/forms';
-import { Change } from '@codemirror/merge';
+import { FormControl, FormGroupDirective, NgForm } from '@angular/forms';
 
 interface LabelValue<T = string> {
   label: string;
