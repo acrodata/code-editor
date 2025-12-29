@@ -78,9 +78,9 @@ export class YourAppComponent {
 | [language]            | string                 | `''`        | The editor's language. You should set the `languages` prop at first.                                               |
 | [setup]               | Setup                  | `'basic'`   | The editor's built-in setup. The value can be set to [`basic`][_basicSetup], [`minimal`][_minimalSetup] or `null`. |
 | [extensions]          | Extension[]            | `[]`        | It will be appended to the root [extensions][_extensions].                                                         |
-| (change)              | EventEmitter<string>   | `-`         | Event emitted when the editor's value changes.                                                                     |
-| (focus)               | EventEmitter<void>     | `-`         | Event emitted when focus on the editor.                                                                            |
-| (blur)                | EventEmitter<void>     | `-`         | Event emitted when the editor has lost focus.                                                                      |
+| (change)              | EventEmitter\<string\>   | `-`         | Event emitted when the editor's value changes.                                                                     |
+| (focus)               | EventEmitter\<void\>     | `-`         | Event emitted when focus on the editor.                                                                            |
+| (blur)                | EventEmitter\<void\>     | `-`         | Event emitted when the editor has lost focus.                                                                      |
 
 ### Diff Editor
 
@@ -99,12 +99,12 @@ export class YourAppComponent {
 | [disabled]            | boolean                               | `false`     | Whether the diff-editor is disabled.                                                                               |
 | [collapseUnchanged]   | { margin?: number; minSize?: number } | `undefined` | When given, long stretches of unchanged text are collapsed.                                                        |
 | [diffConfig]          | DiffConfig                            | `undefined` | Pass options to the diff algorithm.                                                                                |
-| (originalValueChange) | EventEmitter<string>                  | `-`         | Event emitted when the editor's original value changes.                                                            |
-| (originalFocus)       | EventEmitter<void>                    | `-`         | Event emitted when focus on the original editor.                                                                   |
-| (originalBlur)        | EventEmitter<void>                    | `-`         | Event emitted when blur on the original editor.                                                                    |
-| (modifiedValueChange) | EventEmitter<string>                  | `-`         | Event emitted when the editor's modified value changes.                                                            |
-| (modifiedFocus)       | EventEmitter<void>                    | `-`         | Event emitted when focus on the modified editor.                                                                   |
-| (modifiedBlur)        | EventEmitter<void>                    | `-`         | Event emitted when blur on the modified editor.                                                                    |
+| (originalValueChange) | EventEmitter\<string\>                  | `-`         | Event emitted when the editor's original value changes.                                                            |
+| (originalFocus)       | EventEmitter\<void\>                    | `-`         | Event emitted when focus on the original editor.                                                                   |
+| (originalBlur)        | EventEmitter\<void\>                    | `-`         | Event emitted when blur on the original editor.                                                                    |
+| (modifiedValueChange) | EventEmitter\<string\>                  | `-`         | Event emitted when the editor's modified value changes.                                                            |
+| (modifiedFocus)       | EventEmitter\<void\>                    | `-`         | Event emitted when focus on the modified editor.                                                                   |
+| (modifiedBlur)        | EventEmitter\<void\>                    | `-`         | Event emitted when blur on the modified editor.                                                                    |
 
 ## License
 
