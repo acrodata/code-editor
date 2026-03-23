@@ -291,7 +291,7 @@ export class CodeEditor implements OnChanges, OnInit, OnDestroy, ControlValueAcc
   setValue(value: string) {
     this.view.dispatch({
       changes: { from: 0, to: this.view.state.doc.length, insert: value },
-      annotations: Transaction.addToHistory.of(false),
+      annotations: [Transaction.addToHistory.of(false), External.of(true)],
     });
   }
 
