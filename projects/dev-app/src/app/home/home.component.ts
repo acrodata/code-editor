@@ -108,7 +108,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   getLangSample(lang: string) {
-    fetch(`assets/lang_samples/${lang}.txt`).then(async response => {
+    fetch(`lang_samples/${lang}.txt`).then(async response => {
       if (response.ok) {
         this.code = await response.text();
       } else {
