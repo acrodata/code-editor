@@ -6,10 +6,10 @@ import { unifiedMergeView } from '@codemirror/merge';
 @Component({
   selector: 'app-diff',
   imports: [DiffEditor, CodeEditor, FormsModule, ReactiveFormsModule],
-  templateUrl: './diff.component.html',
-  styleUrl: './diff.component.scss',
+  templateUrl: './diff.html',
+  styleUrl: './diff.scss',
 })
-export class DiffComponent {
+export class Diff {
   doc = `one
 two
 three

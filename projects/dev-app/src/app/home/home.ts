@@ -11,10 +11,10 @@ import { unifiedMergeView } from '@codemirror/merge';
 @Component({
   selector: 'app-home',
   imports: [FormsModule, ReactiveFormsModule, CodeEditor, DiffEditor, GuiForm, MatButtonModule],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
+  templateUrl: './home.html',
+  styleUrl: './home.scss',
 })
-export class HomeComponent implements OnInit, AfterViewInit {
+export class Home implements OnInit, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
 
   languages = languages;

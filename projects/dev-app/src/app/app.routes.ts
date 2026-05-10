@@ -1,16 +1,16 @@
 import { Routes } from '@angular/router';
-import { LayoutComponent } from './layout/layout.component';
-import { HomeComponent } from './home/home.component';
-import { DiffComponent } from './diff/diff.component';
+import { Layout } from './layout/layout';
+import { Home } from './home/home';
+import { Diff } from './diff/diff';
 
 export const routes: Routes = [
   {
     path: '',
-    component: LayoutComponent,
+    component: Layout,
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'home' },
-      { path: 'home', component: HomeComponent },
-      { path: 'diff', component: DiffComponent },
+      { path: 'home', component: Home },
+      { path: 'diff', component: Diff },
     ],
   },
 ];

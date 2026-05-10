@@ -6,7 +6,7 @@ import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-layout',
   imports: [RouterOutlet, MatToolbarModule, MatButtonModule],
-  templateUrl: './layout.component.html',
-  styleUrl: './layout.component.scss',
+  templateUrl: './layout.html',
+  styleUrl: './layout.scss',
 })
-export class LayoutComponent {}
+export class Layout {}
