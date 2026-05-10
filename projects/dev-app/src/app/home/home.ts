@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -89,9 +89,9 @@ export class Home implements OnInit, AfterViewInit {
     highlightWhitespace: false,
   };
 
-  code = '';
+  code = signal('');
 
-  showOutput = false;
+  showOutput = signal(false);
 
   ngOnInit(): void {
     this.getLangSample('javascript');
@@ -110,9 +110,10 @@ export class Home implements OnInit, AfterViewInit {
   getLangSample(lang: string) {
     fetch(`lang_samples/${lang}.txt`).then(async response => {
       if (response.ok) {
-        this.code = await response.text();
+        const text = await response.text();
+        this.code.set(text);
       } else {
-        this.code = '';
+        this.code.set('');
       }
     });
   }
@@ -121,16 +122,16 @@ export class Home implements OnInit, AfterViewInit {
     console.log(e);
   }
 
-  originalCode = `one
+  originalCode = signal(`one
 two
 three
 four
-five`;
-  modifiedCode = this.originalCode.replace(/t/g, 'T') + '\nSix';
+five`);
+  modifiedCode = signal(this.originalCode().replace(/t/g, 'T') + '\nSix');
 
   unifiedExts = [
     unifiedMergeView({
-      original: this.originalCode,
+      original: this.originalCode(),
     }),
   ];
 
@@ -168,4 +169,8 @@ five`;
     highlightChanges: true,
     gutter: true,
   };
+
+  toggleOutput() {
+    this.showOutput.update(v => !v);
+  }
 }

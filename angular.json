@@ -63,9 +63,6 @@
             "outputPath": "dist/dev-app",
             "index": "projects/dev-app/src/index.html",
             "browser": "projects/dev-app/src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
             "tsConfig": "projects/dev-app/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [

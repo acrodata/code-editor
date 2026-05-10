@@ -8,7 +8,7 @@
 
   <div>
     <h4>
-      <button matButton (click)="showOutput = !showOutput">Toggle output</button>
+      <button matButton (click)="toggleOutput()">Toggle output</button>
     </h4>
     <div class="editor-wrap">
       <code-editor
@@ -29,7 +29,7 @@
         [languages]="languages"
       />
 
-      @if (showOutput) {
+      @if (showOutput()) {
         <textarea [style.height]="'500px'" [(ngModel)]="code"></textarea>
       }
     </div>
@@ -38,7 +38,7 @@
     <code-editor
       #editor
       [style.height]="'500px'"
-      [value]="modifiedCode"
+      [value]="modifiedCode()"
       [theme]="options.theme"
       [setup]="options.setup"
       [readonly]="options.readonly"
@@ -65,8 +65,8 @@
     <diff-editor
       #editor
       [style.height]="'100vh'"
-      [originalValue]="originalCode"
-      [modifiedValue]="modifiedCode"
+      [originalValue]="originalCode()"
+      [modifiedValue]="modifiedCode()"
       [orientation]="options2.orientation"
       [revertControls]="options2.revertControls"
       [highlightChanges]="options2.highlightChanges"

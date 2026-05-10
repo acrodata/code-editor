@@ -4,25 +4,19 @@
   [(ngModel)]="value"
   (originalValueChange)="log($event)"
   (modifiedValueChange)="log($event)"
-  [orientation]="orientation"
-  [revertControls]="revertControls"
-  [highlightChanges]="highlightChanges"
-  [gutter]="gutter"
-  [disabled]="disabled"
+  [orientation]="orientation()"
+  [revertControls]="revertControls()"
+  [highlightChanges]="highlightChanges()"
+  [gutter]="gutter()"
+  [disabled]="disabled()"
 />
 
-<button (click)="doc = '123'">change original value</button>
-<button (click)="doc2 = '13\n456'">change modified value</button>
-<button (click)="orientation === 'a-b' ? (orientation = 'b-a') : (orientation = 'a-b')">
-  orientation
-</button>
-<button
-  (click)="revertControls === 'a-to-b' ? (revertControls = 'b-to-a') : (revertControls = 'a-to-b')"
->
-  revertControls
-</button>
-<button (click)="highlightChanges = !highlightChanges">highlightChanges</button>
-<button (click)="gutter = !gutter">gutter</button>
-<button (click)="disabled = !disabled">disabled</button>
+<button (click)="setOriginalValue()">change original value</button>
+<button (click)="setModifiedValue()">change modified value</button>
+<button (click)="setOrientation()">orientation</button>
+<button (click)="setRevertControls()">revertControls</button>
+<button (click)="setHighlightChanges()">highlightChanges</button>
+<button (click)="setGutter()">gutter</button>
+<button (click)="setDisabled()">disabled</button>
 
-<code-editor [value]="doc2" [extensions]="unifiedExts" />
+<code-editor [value]="doc2()" [extensions]="unifiedExts" />
