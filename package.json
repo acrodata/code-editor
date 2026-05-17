@@ -21,7 +21,7 @@
   },
   "private": true,
   "dependencies": {
-    "@acrodata/gui": "^3.2.0",
+    "@acrodata/gui": "^3.2.2",
     "@angular/cdk": "^20.2.13",
     "@angular/common": "^20.3.12",
     "@angular/compiler": "^20.3.12",
